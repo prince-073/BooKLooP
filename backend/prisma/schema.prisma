@@ -1,0 +1,228 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String?
+  course       String
+  year         String
+  role         String   @default("Student")
+  phone        String   @default("")
+  phoneVisible Boolean  @default(true)
+  avatarUrl    String   @default("")
+  bio          String   @default("")
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  booksListed       Book[]          @relation("BookOwner")
+  savedBooks        SavedBook[]
+  borrowedHistory   BorrowedBook[]
+  booksBorrowed     Book[]          @relation("BookBorrower")
+  waitlistEntries   WaitlistEntry[]
+  requestsAsBorrower Request[]      @relation("RequestBorrower")
+  requestsAsOwner   Request[]      @relation("RequestOwner")
+  sentMessages      Message[]      @relation("MessageSender")
+  conversationsAsUserA Conversation[] @relation("ConversationUserA")
+  conversationsAsUserB Conversation[] @relation("ConversationUserB")
+  blockedUsers      Block[]        @relation("UserBlocks")
+  blockedByUsers    Block[]        @relation("UserBlockedBy")
+  ratingsGiven      Rating[]       @relation("RatingRater")
+  ratingsReceived   Rating[]       @relation("RatingRatee")
+  profileVisitsAsVisitor ProfileVisit[] @relation("ProfileVisitor")
+  profileVisitsAsVisited ProfileVisit[] @relation("ProfileVisited")
+}
+
+model ProfileVisit {
+  id        String   @id @default(cuid())
+  visitorId String
+  visitedId String
+  createdAt DateTime @default(now())
+
+  visitor User @relation("ProfileVisitor", fields: [visitorId], references: [id], onDelete: Cascade)
+  visited User @relation("ProfileVisited", fields: [visitedId], references: [id], onDelete: Cascade)
+
+  @@index([visitedId, createdAt])
+}
+
+model BorrowedBook {
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId], name: "userId_bookId")
+}
+
+model Book {
+  id         String   @id @default(cuid())
+  title      String
+  author     String
+  subject    String
+  course     String
+  condition  String
+  image      String   @default("")
+
+  // Optional fields (used by your current frontend)
+  edition    String   @default("")
+  abstract   String   @default("")
+
+  available      Boolean @default(true)
+  ownerId        String
+  currentBorrowerId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner User @relation("BookOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  currentBorrower User? @relation("BookBorrower", fields: [currentBorrowerId], references: [id], onDelete: SetNull)
+
+  borrowedHistory BorrowedBook[]
+  waitlist        WaitlistEntry[]
+  savedBy         SavedBook[]
+  requests        Request[]
+}
+
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  bookId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, userId], name: "bookId_userId")
+  @@index([bookId, createdAt])
+}
+
+model Request {
+  id        String   @id @default(cuid())
+  bookId    String
+  borrowerId String
+  ownerId    String
+  status     String   @default("pending") // pending | accepted | rejected | completed
+  daysRequested Int   @default(7)
+
+  acceptedAt DateTime?
+  rejectedAt DateTime?
+  completedAt DateTime?
+  dueDate    DateTime?
+  returnedAt DateTime?
+
+  returnOtpHash      String?
+  returnOtpExpiresAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  borrower User @relation("RequestBorrower", fields: [borrowerId], references: [id], onDelete: Cascade)
+  owner User @relation("RequestOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  rating Rating?
+
+  @@index([ownerId, status])
+  @@index([borrowerId, status])
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  email     String
+  codeHash  String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  @@index([email, expiresAt])
+}
+
+model Conversation {
+  id              String   @id @default(cuid())
+  userAId         String
+  userBId         String
+  participantsKey String   @unique
+  lastMessageAt   DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  userA User @relation("ConversationUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB User @relation("ConversationUserB", fields: [userBId], references: [id], onDelete: Cascade)
+
+  messages Message[]
+
+  @@index([userAId])
+  @@index([userBId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  attachmentUrl  String?
+  attachmentName String?
+  attachmentType String?
+  deliveredAt    DateTime @default(now())
+  readAt         DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+}
+
+model Block {
+  id         String   @id @default(cuid())
+  blockerId  String
+  blockedId  String
+  createdAt  DateTime @default(now())
+
+  blocker User @relation("UserBlocks", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked User @relation("UserBlockedBy", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@unique([blockerId, blockedId], name: "blockerId_blockedId")
+  @@index([blockerId])
+  @@index([blockedId])
+}
+
+model Rating {
+  id         String   @id @default(cuid())
+  raterId    String
+  rateeId    String
+  bookId     String
+  requestId  String   @unique
+  score      Int
+  comment    String?
+  type       String   // e.g. "borrower_return", "owner_experience"
+  createdAt  DateTime @default(now())
+
+  rater User @relation("RatingRater", fields: [raterId], references: [id], onDelete: Cascade)
+  ratee User @relation("RatingRatee", fields: [rateeId], references: [id], onDelete: Cascade)
+  request Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
+}
+
+model SavedBook {
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId], name: "userId_bookId")
+}

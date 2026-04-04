@@ -1,0 +1,215 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:wght@600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-headline: "Noto Serif", serif;
+  --font-serif: "Playfair Display", serif;
+  --font-body: "Inter", sans-serif;
+  --font-label: "Inter", sans-serif;
+
+  --color-book-green: #1A2E23;
+  --color-book-cream: #F9F7F2;
+  --color-book-beige: #F0EDE6;
+  --color-book-accent: #E9E4D9;
+
+  --color-primary: var(--color-primary-val);
+  --color-on-primary: var(--color-on-primary-val);
+  --color-primary-container: var(--color-primary-container-val);
+  --color-on-primary-container: var(--color-on-primary-container-val);
+  --color-primary-fixed: var(--color-primary-fixed-val);
+  --color-on-primary-fixed: var(--color-on-primary-fixed-val);
+  --color-primary-fixed-dim: var(--color-primary-fixed-dim-val);
+  --color-on-primary-fixed-variant: var(--color-on-primary-fixed-variant-val);
+
+  --color-secondary: var(--color-secondary-val);
+  --color-on-secondary: var(--color-on-secondary-val);
+  --color-secondary-container: var(--color-secondary-container-val);
+  --color-on-secondary-container: var(--color-on-secondary-container-val);
+  --color-secondary-fixed: var(--color-secondary-fixed-val);
+  --color-on-secondary-fixed: var(--color-on-secondary-fixed-val);
+  --color-secondary-fixed-dim: var(--color-secondary-fixed-dim-val);
+  --color-on-secondary-fixed-variant: var(--color-on-secondary-fixed-variant-val);
+
+  --color-tertiary: var(--color-tertiary-val);
+  --color-on-tertiary: var(--color-on-tertiary-val);
+  --color-tertiary-container: var(--color-tertiary-container-val);
+  --color-on-tertiary-container: var(--color-on-tertiary-container-val);
+  --color-tertiary-fixed: var(--color-tertiary-fixed-val);
+  --color-on-tertiary-fixed: var(--color-on-tertiary-fixed-val);
+  --color-tertiary-fixed-dim: var(--color-tertiary-fixed-dim-val);
+  --color-on-tertiary-fixed-variant: var(--color-on-tertiary-fixed-variant-val);
+
+  --color-error: var(--color-error-val);
+  --color-on-error: var(--color-on-error-val);
+  --color-error-container: var(--color-error-container-val);
+  --color-on-error-container: var(--color-on-error-container-val);
+
+  --color-background: var(--color-background-val);
+  --color-on-background: var(--color-on-background-val);
+  --color-surface: var(--color-surface-val);
+  --color-on-surface: var(--color-on-surface-val);
+  --color-surface-variant: var(--color-surface-variant-val);
+  --color-on-surface-variant: var(--color-on-surface-variant-val);
+  --color-surface-dim: var(--color-surface-dim-val);
+  --color-surface-bright: var(--color-surface-bright-val);
+  --color-surface-container-lowest: var(--color-surface-container-lowest-val);
+  --color-surface-container-low: var(--color-surface-container-low-val);
+  --color-surface-container: var(--color-surface-container-val);
+  --color-surface-container-high: var(--color-surface-container-high-val);
+  --color-surface-container-highest: var(--color-surface-container-highest-val);
+
+  --color-outline: var(--color-outline-val);
+  --color-outline-variant: var(--color-outline-variant-val);
+  --color-inverse-surface: var(--color-inverse-surface-val);
+  --color-inverse-on-surface: var(--color-inverse-on-surface-val);
+  --color-inverse-primary: var(--color-inverse-primary-val);
+  --color-surface-tint: var(--color-surface-tint-val);
+
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --color-primary-val: #4338ca;
+    --color-on-primary-val: #ffffff;
+    --color-primary-container-val: #e0e7ff; 
+    --color-on-primary-container-val: #1e1b4b; 
+    --color-primary-fixed-val: #818cf8;
+    --color-on-primary-fixed-val: #1e1b4b;
+    --color-primary-fixed-dim-val: #6366f1;
+    --color-on-primary-fixed-variant-val: #312e81;
+
+    --color-secondary-val: #0f766e;
+    --color-on-secondary-val: #ffffff;
+    --color-secondary-container-val: #ccfbf1;
+    --color-on-secondary-container-val: #042f2e;
+    --color-secondary-fixed-val: #5eead4;
+    --color-on-secondary-fixed-val: #042f2e;
+    --color-secondary-fixed-dim-val: #2dd4bf;
+    --color-on-secondary-fixed-variant-val: #115e59;
+
+    --color-tertiary-val: #b91c1c;
+    --color-on-tertiary-val: #ffffff;
+    --color-tertiary-container-val: #fee2e2;
+    --color-on-tertiary-container-val: #450a0a;
+    --color-tertiary-fixed-val: #fca5a5;
+    --color-on-tertiary-fixed-val: #450a0a;
+    --color-tertiary-fixed-dim-val: #f87171;
+    --color-on-tertiary-fixed-variant-val: #7f1d1d;
+
+    --color-error-val: #dc2626;
+    --color-on-error-val: #ffffff;
+    --color-error-container-val: #fef2f2;
+    --color-on-error-container-val: #7f1d1d;
+
+    --color-background-val: #ffffff;
+    --color-on-background-val: #0f172a;
+    --color-surface-val: #ffffff;
+    --color-on-surface-val: #0f172a;
+    --color-surface-variant-val: #f8fafc;
+    --color-on-surface-variant-val: #334155;
+    --color-surface-dim-val: #e2e8f0;
+    --color-surface-bright-val: #ffffff;
+    --color-surface-container-lowest-val: #ffffff;
+    --color-surface-container-low-val: #f8fafc;
+    --color-surface-container-val: #f1f5f9;
+    --color-surface-container-high-val: #e2e8f0;
+    --color-surface-container-highest-val: #cbd5e1;
+
+    --color-outline-val: #64748b;
+    --color-outline-variant-val: #e2e8f0;
+    --color-inverse-surface-val: #0f172a;
+    --color-inverse-on-surface-val: #f8fafc;
+    --color-inverse-primary-val: #818cf8;
+    --color-surface-tint-val: #4338ca;
+  }
+
+  .dark {
+    --color-primary-val: #818cf8;
+    --color-on-primary-val: #1e1b4b;
+    --color-primary-container-val: #312e81; 
+    --color-on-primary-container-val: #e0e7ff; 
+    --color-primary-fixed-val: #818cf8;
+    --color-on-primary-fixed-val: #1e1b4b;
+    --color-primary-fixed-dim-val: #6366f1;
+    --color-on-primary-fixed-variant-val: #312e81;
+
+    --color-secondary-val: #5eead4;
+    --color-on-secondary-val: #042f2e;
+    --color-secondary-container-val: #115e59;
+    --color-on-secondary-container-val: #ccfbf1;
+    --color-secondary-fixed-val: #5eead4;
+    --color-on-secondary-fixed-val: #042f2e;
+    --color-secondary-fixed-dim-val: #2dd4bf;
+    --color-on-secondary-fixed-variant-val: #115e59;
+
+    --color-tertiary-val: #fca5a5;
+    --color-on-tertiary-val: #450a0a;
+    --color-tertiary-container-val: #7f1d1d;
+    --color-on-tertiary-container-val: #fee2e2;
+    --color-tertiary-fixed-val: #fca5a5;
+    --color-on-tertiary-fixed-val: #450a0a;
+    --color-tertiary-fixed-dim-val: #f87171;
+    --color-on-tertiary-fixed-variant-val: #7f1d1d;
+
+    --color-error-val: #fca5a5;
+    --color-on-error-val: #450a0a;
+    --color-error-container-val: #7f1d1d;
+    --color-on-error-container-val: #fee2e2;
+
+    --color-background-val: #020617; /* Slate 950 */
+    --color-on-background-val: #f8fafc;
+    --color-surface-val: #0f172a; /* Slate 900 */
+    --color-on-surface-val: #f8fafc;
+    --color-surface-variant-val: #1e293b; /* Slate 800 */
+    --color-on-surface-variant-val: #cbd5e1;
+    --color-surface-dim-val: #0f172a;
+    --color-surface-bright-val: #334155;
+    --color-surface-container-lowest-val: #020617;
+    --color-surface-container-low-val: #0f172a;
+    --color-surface-container-val: #1e293b;
+    --color-surface-container-high-val: #334155;
+    --color-surface-container-highest-val: #475569;
+
+    --color-outline-val: #94a3b8;
+    --color-outline-variant-val: #334155;
+    --color-inverse-surface-val: #f8fafc;
+    --color-inverse-on-surface-val: #0f172a;
+    --color-inverse-primary-val: #4338ca;
+    --color-surface-tint-val: #818cf8;
+  }
+
+  body {
+    @apply text-on-background font-body;
+    background: linear-gradient(135deg, var(--color-background-val) 0%, var(--color-surface-container-low-val) 40%, var(--color-surface-container-highest-val) 100%);
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .paper-grain {
+    position: relative;
+  }
+  .paper-grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    z-index: 10;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

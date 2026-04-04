@@ -1,0 +1,5 @@
+{
+  "name": "BookLoop",
+  "description": "A curated book-sharing platform for university libraries.",
+  "requestFramePermissions": []
+}
