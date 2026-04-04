@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Explore from './pages/Explore';
@@ -14,6 +14,15 @@ import { OtpLogin } from './pages/OtpLogin';
 import SavedBooks from './pages/SavedBooks';
 import { Messages } from './pages/Messages';
 import { Toaster } from 'react-hot-toast';
+import { getToken } from './lib/auth';
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const token = getToken();
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+};
 
 export default function App() {
   return (
@@ -41,7 +50,7 @@ export default function App() {
       />
       <Routes>
         <Route path="/login" element={<OtpLogin />} />
-        <Route path="/" element={<Layout />}>
+        <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route index element={<Home />} />
           <Route path="explore" element={<Explore />} />
           <Route path="library" element={<Library />} />
