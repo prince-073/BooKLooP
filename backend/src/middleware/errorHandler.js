@@ -10,6 +10,10 @@ function errorHandler(err, req, res, next) {
   const statusCode = err instanceof ApiError ? err.statusCode : 500;
   const message = err instanceof ApiError ? err.message : 'Internal Server Error';
 
+  if (!(err instanceof ApiError)) {
+    console.error('Unhandled Error:', err);
+  }
+
   return res.status(statusCode).json({
     error: {
       message,

@@ -30,7 +30,10 @@ const uploadBookImage = multer({
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB
   },
-}).single('imageFile');
+}).fields([
+  { name: 'imageFile', maxCount: 1 },
+  { name: 'imageBackFile', maxCount: 1 }
+]);
 
 module.exports = { uploadBookImage };
 

@@ -21,12 +21,15 @@ function normalizeBookImage(image, req) {
 function toFrontendBook(bookDoc, ownerDoc, req) {
   return {
     id: bookDoc.id,
+    type: bookDoc.type || 'Novel',
     title: bookDoc.title,
     author: bookDoc.author,
     subject: bookDoc.subject,
     courseCode: bookDoc.course,
+    pickupPoint: bookDoc.pickupPoint || 'Main Campus',
     condition: bookDoc.condition,
     cover: normalizeBookImage(bookDoc.image, req),
+    coverBack: normalizeBookImage(bookDoc.imageBack, req),
     edition: bookDoc.edition || '',
     abstract: bookDoc.abstract || '',
     status: bookDoc.available ? 'available' : 'borrowed',
@@ -48,32 +51,43 @@ const addBook = asyncHandler(async (req, res) => {
   const {
     title,
     author,
+    type,
     subject,
     course,
+    pickupPoint,
     condition,
     image,
+    imageBack,
     available = true,
     edition,
     abstract,
   } = req.body || {};
 
-  if (!title || !author || !subject || !course || !condition) {
-    throw new ApiError(400, 'title, author, subject, course, and condition are required');
+  if (!title || !author || !subject || !condition) {
+    throw new ApiError(400, 'title, author, subject, and condition are required');
   }
 
-  const uploadedFile = req.file;
+  const uploadedFile = req.files && req.files['imageFile'] ? req.files['imageFile'][0] : null;
   const uploadedImageUrl = uploadedFile
     ? `${req.protocol}://${req.get('host')}/uploads/${uploadedFile.filename}`
+    : '';
+
+  const uploadedBackFile = req.files && req.files['imageBackFile'] ? req.files['imageBackFile'][0] : null;
+  const uploadedImageBackUrl = uploadedBackFile
+    ? `${req.protocol}://${req.get('host')}/uploads/${uploadedBackFile.filename}`
     : '';
 
   const book = await prisma.book.create({
     data: {
       title: String(title).trim(),
       author: String(author).trim(),
+      type: type ? String(type).trim() : 'Novel',
       subject: String(subject).trim(),
-      course: String(course).trim(),
+      course: course ? String(course).trim() : '',
+      pickupPoint: pickupPoint ? String(pickupPoint).trim() : 'Main Campus',
       condition: String(condition).trim(),
       image: uploadedImageUrl || (image ? String(image).trim() : ''),
+      imageBack: uploadedImageBackUrl || (imageBack ? String(imageBack).trim() : ''),
       available: Boolean(available),
       ownerId,
       edition: edition ? String(edition).trim() : '',
@@ -132,7 +146,7 @@ const updateBook = asyncHandler(async (req, res) => {
   if (!book) throw new ApiError(404, 'Book not found');
   if (book.ownerId !== ownerId) throw new ApiError(403, 'Only the book owner can update it');
 
-  const allowed = ['title', 'author', 'subject', 'course', 'condition', 'image', 'available', 'edition', 'abstract'];
+  const allowed = ['title', 'author', 'type', 'subject', 'course', 'pickupPoint', 'condition', 'image', 'imageBack', 'available', 'edition', 'abstract'];
   const updates = {};
   for (const key of allowed) {
     if (req.body && Object.prototype.hasOwnProperty.call(req.body, key)) {
@@ -150,10 +164,13 @@ const updateBook = asyncHandler(async (req, res) => {
       ...updates,
       title: updates.title !== undefined ? String(updates.title).trim() : undefined,
       author: updates.author !== undefined ? String(updates.author).trim() : undefined,
+      type: updates.type !== undefined ? String(updates.type).trim() : undefined,
       subject: updates.subject !== undefined ? String(updates.subject).trim() : undefined,
       course: updates.course !== undefined ? String(updates.course).trim() : undefined,
+      pickupPoint: updates.pickupPoint !== undefined ? String(updates.pickupPoint).trim() : undefined,
       condition: updates.condition !== undefined ? String(updates.condition).trim() : undefined,
       image: updates.image !== undefined ? String(updates.image).trim() : undefined,
+      imageBack: updates.imageBack !== undefined ? String(updates.imageBack).trim() : undefined,
       edition: updates.edition !== undefined ? String(updates.edition).trim() : undefined,
       abstract: updates.abstract !== undefined ? String(updates.abstract).trim() : undefined,
     },

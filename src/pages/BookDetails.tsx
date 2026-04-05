@@ -81,13 +81,37 @@ const BookDetails: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="relative aspect-[3/4] overflow-hidden shadow-xl border border-outline/50 rounded-sm bg-surface-container-lowest p-2"
           >
-            <div className="w-full h-full relative overflow-hidden rounded-sm border border-outline-variant/30">
-               <img
-                 src={book.coverUrl}
-                 alt={book.title}
-                 className="w-full h-full object-cover"
-                 referrerPolicy="no-referrer"
-               />
+            <div className="w-full h-full relative overflow-hidden rounded-sm border border-outline-variant/30 flex perspective-1000">
+               {book.coverBack ? (
+                 <>
+                   {/* Dual image view container */}
+                   <div className="w-full h-full flex flex-row overflow-x-auto snap-x snap-mandatory hide-scrollbar">
+                     <img
+                       src={book.cover || book.coverUrl || 'https://picsum.photos/400/600'}
+                       alt={book.title}
+                       className="w-full h-full object-cover shrink-0 snap-center"
+                       referrerPolicy="no-referrer"
+                     />
+                     <img
+                       src={book.coverBack}
+                       alt={`Back of ${book.title}`}
+                       className="w-full h-full object-cover shrink-0 snap-center"
+                       referrerPolicy="no-referrer"
+                     />
+                   </div>
+                   <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 pointer-events-none">
+                     <span className="w-1.5 h-1.5 rounded-full bg-primary/80"></span>
+                     <span className="w-1.5 h-1.5 rounded-full bg-surface-variant/80"></span>
+                   </div>
+                 </>
+               ) : (
+                 <img
+                   src={book.cover || book.coverUrl || 'https://picsum.photos/400/600'}
+                   alt={book.title}
+                   className="w-full h-full object-cover"
+                   referrerPolicy="no-referrer"
+                 />
+               )}
             </div>
             <div className={cn(
               "absolute top-5 right-5 px-4 py-1.5 rounded-sm text-[10px] uppercase tracking-widest font-bold shadow-md border",
@@ -135,9 +159,12 @@ const BookDetails: React.FC = () => {
         {/* Book Details */}
         <div className="lg:col-span-8 flex flex-col">
           <div className="mb-10">
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <span className="px-4 py-1.5 bg-secondary/10 border border-secondary/20 text-secondary rounded-sm text-[10px] font-bold uppercase tracking-widest">
+                {book.type || 'Novel'}
+              </span>
               <span className="px-4 py-1.5 bg-primary/10 border border-primary/20 text-primary rounded-sm text-[10px] font-bold uppercase tracking-widest">
-                {book.category}
+                {book.subject || book.category}
               </span>
               <span className="text-xs text-on-surface-variant font-bold uppercase tracking-widest flex items-center gap-1.5 border-l-2 border-outline-variant/50 pl-3">
                 <Calendar size={14} />
@@ -156,8 +183,8 @@ const BookDetails: React.FC = () => {
             <Link to={`/user/${book.ownerId}`}>
               <InfoBox icon={<User size={20} strokeWidth={1.5} />} label="Owner" value={book.owner?.name || 'Unknown'} />
             </Link>
-            <InfoBox icon={<MapPin size={20} strokeWidth={1.5} />} label="Location" value="Main Archives" />
-            <InfoBox icon={<BookOpen size={20} strokeWidth={1.5} />} label="Condition" value="Like New" />
+            <InfoBox icon={<MapPin size={20} strokeWidth={1.5} />} label="Pickup Point" value={book.pickupPoint || 'Main Campus'} />
+            <InfoBox icon={<BookOpen size={20} strokeWidth={1.5} />} label="Condition" value={book.condition || 'Good'} />
             <InfoBox icon={<ShieldCheck size={20} strokeWidth={1.5} />} label="Security" value="Verified Vault" />
           </div>
 

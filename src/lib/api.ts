@@ -186,26 +186,36 @@ export async function apiUpdateUser(payload: Partial<StoredUser> & { phoneVisibl
 export async function apiAddBook(payload: {
   title: string;
   author: string;
+  type?: string;
   subject: string;
-  course: string;
+  course?: string;
+  pickupPoint?: string;
   condition: string;
+  abstract?: string;
   image?: string;
+  imageBack?: string;
   imageFile?: File | null;
+  imageBackFile?: File | null;
   available?: boolean;
 }) {
   const token = getToken();
   if (!token) throw new Error('Please login first');
 
-  if (payload.imageFile) {
+  if (payload.imageFile || payload.imageBackFile) {
     const form = new FormData();
     form.append('title', payload.title);
     form.append('author', payload.author);
+    if (payload.type) form.append('type', payload.type);
     form.append('subject', payload.subject);
-    form.append('course', payload.course);
+    if (payload.course) form.append('course', payload.course);
+    if (payload.pickupPoint) form.append('pickupPoint', payload.pickupPoint);
     form.append('condition', payload.condition);
+    if (payload.abstract) form.append('abstract', payload.abstract);
     form.append('available', String(payload.available ?? true));
     if (payload.image) form.append('image', payload.image);
-    form.append('imageFile', payload.imageFile);
+    if (payload.imageBack) form.append('imageBack', payload.imageBack);
+    if (payload.imageFile) form.append('imageFile', payload.imageFile);
+    if (payload.imageBackFile) form.append('imageBackFile', payload.imageBackFile);
 
     const res = await fetch(`${API_BASE_URL}/api/books/add`, {
       method: 'POST',

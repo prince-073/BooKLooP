@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -69,12 +69,15 @@ model Book {
   id         String   @id @default(cuid())
   title      String
   author     String
-  subject    String
-  course     String
+  type       String   @default("Novel")
+  subject    String   // (we will use this as genre/story type)
+  course     String   // (can be used for specific course code or kept for legacy)
+  pickupPoint String  @default("Main Campus")
   condition  String
   image      String   @default("")
+  imageBack  String   @default("")
 
-  // Optional fields (used by your current frontend)
+  // Optional fields
   edition    String   @default("")
   abstract   String   @default("")
 
