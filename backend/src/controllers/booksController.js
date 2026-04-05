@@ -28,6 +28,7 @@ function toFrontendBook(bookDoc, ownerDoc, req) {
     courseCode: bookDoc.course,
     pickupPoint: bookDoc.pickupPoint || 'Main Campus',
     condition: bookDoc.condition,
+    language: bookDoc.language || 'English',
     cover: normalizeBookImage(bookDoc.image, req),
     coverBack: normalizeBookImage(bookDoc.imageBack, req),
     edition: bookDoc.edition || '',
@@ -56,6 +57,7 @@ const addBook = asyncHandler(async (req, res) => {
     course,
     pickupPoint,
     condition,
+    language,
     image,
     imageBack,
     available = true,
@@ -68,14 +70,10 @@ const addBook = asyncHandler(async (req, res) => {
   }
 
   const uploadedFile = req.files && req.files['imageFile'] ? req.files['imageFile'][0] : null;
-  const uploadedImageUrl = uploadedFile
-    ? `${req.protocol}://${req.get('host')}/uploads/${uploadedFile.filename}`
-    : '';
+  const uploadedImageUrl = uploadedFile ? uploadedFile.path : '';
 
   const uploadedBackFile = req.files && req.files['imageBackFile'] ? req.files['imageBackFile'][0] : null;
-  const uploadedImageBackUrl = uploadedBackFile
-    ? `${req.protocol}://${req.get('host')}/uploads/${uploadedBackFile.filename}`
-    : '';
+  const uploadedImageBackUrl = uploadedBackFile ? uploadedBackFile.path : '';
 
   const book = await prisma.book.create({
     data: {
@@ -86,6 +84,7 @@ const addBook = asyncHandler(async (req, res) => {
       course: course ? String(course).trim() : '',
       pickupPoint: pickupPoint ? String(pickupPoint).trim() : 'Main Campus',
       condition: String(condition).trim(),
+      language: language ? String(language).trim() : 'English',
       image: uploadedImageUrl || (image ? String(image).trim() : ''),
       imageBack: uploadedImageBackUrl || (imageBack ? String(imageBack).trim() : ''),
       available: Boolean(available),
@@ -146,7 +145,7 @@ const updateBook = asyncHandler(async (req, res) => {
   if (!book) throw new ApiError(404, 'Book not found');
   if (book.ownerId !== ownerId) throw new ApiError(403, 'Only the book owner can update it');
 
-  const allowed = ['title', 'author', 'type', 'subject', 'course', 'pickupPoint', 'condition', 'image', 'imageBack', 'available', 'edition', 'abstract'];
+  const allowed = ['title', 'author', 'type', 'subject', 'course', 'pickupPoint', 'condition', 'language', 'image', 'imageBack', 'available', 'edition', 'abstract'];
   const updates = {};
   for (const key of allowed) {
     if (req.body && Object.prototype.hasOwnProperty.call(req.body, key)) {
@@ -169,6 +168,7 @@ const updateBook = asyncHandler(async (req, res) => {
       course: updates.course !== undefined ? String(updates.course).trim() : undefined,
       pickupPoint: updates.pickupPoint !== undefined ? String(updates.pickupPoint).trim() : undefined,
       condition: updates.condition !== undefined ? String(updates.condition).trim() : undefined,
+      language: updates.language !== undefined ? String(updates.language).trim() : undefined,
       image: updates.image !== undefined ? String(updates.image).trim() : undefined,
       imageBack: updates.imageBack !== undefined ? String(updates.imageBack).trim() : undefined,
       edition: updates.edition !== undefined ? String(updates.edition).trim() : undefined,

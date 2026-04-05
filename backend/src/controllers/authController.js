@@ -4,7 +4,7 @@ const { prisma } = require('../config/prisma');
 const { ApiError } = require('../utils/ApiError');
 const { asyncHandler } = require('../utils/asyncHandler');
 const { env } = require('../config/env');
-const { isValidEmailFormat, emailMatchesAllowedDomains } = require('../utils/email');
+const { isValidEmailFormat, emailMatchesAllowedDomains, sendOtpEmail } = require('../utils/email');
 const { generateOtp, sha256 } = require('../utils/otp');
 
 function safeUser(userDoc) {
@@ -20,47 +20,6 @@ function safeUser(userDoc) {
     avatarUrl: userDoc.avatarUrl || '',
     bio: userDoc.bio || '',
   };
-}
-
-async function sendOtpEmail(email, otp) {
-  if (env.OTP_DEV_RETURN === 'true' || env.OTP_DEV_RETURN === true) return;
-
-  if (!env.SMTP_PASS) {
-    throw new ApiError(500, 'Email API key is not configured. Set SMTP_PASS or enable OTP_DEV_RETURN.');
-  }
-
-  // To bypass Render's strict SMTP port blocking on free tiers, 
-  // we use Brevo's REST API over standard HTTPS (port 443) which is never blocked!
-  // Brevo's SMTP_PASS is exactly the same as their API Key.
-  
-  const payload = {
-    sender: { name: 'Campus Book Exchange', email: 'oji193084@gmail.com' },
-    to: [{ email: String(email) }],
-    subject: 'Your Campus Book Exchange OTP',
-    htmlContent: `<html><body><p>Hello!</p><h2>Your OTP code is: <b style="color: #4F46E5;">${otp}</b></h2><p>It expires in ${env.OTP_EXPIRES_MINUTES} minutes.</p></body></html>`
-  };
-
-  try {
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'content-type': 'application/json',
-        'api-key': env.SMTP_PASS
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Brevo API error:', errorText);
-      throw new Error(`Email provider rejected request: ${response.status}`);
-    }
-  } catch (err) {
-    const msg = err?.message || String(err);
-    console.error('Email sending failed:', msg);
-    throw new ApiError(500, `Email send failed. (${msg})`);
-  }
 }
 
 const register = asyncHandler(async (req, res) => {

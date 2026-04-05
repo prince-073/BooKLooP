@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import SectionHeader from '../components/SectionHeader';
-import { Camera, BookOpen, User, Tag, MapPin, Info, CheckCircle2, ArrowRight, X } from 'lucide-react';
+import { Camera, BookOpen, User, Tag, MapPin, Info, CheckCircle2, ArrowRight, X, Compass } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { apiAddBook } from '../lib/api';
+import { apiGetBook, apiEditBook } from '../lib/api';
 
-const AddBook: React.FC = () => {
+const EditBook: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [initialLoading, setInitialLoading] = useState(true);
+  
   const [formData, setFormData] = useState({
     title: '',
     author: '',
@@ -19,7 +22,8 @@ const AddBook: React.FC = () => {
     pickupPoint: 'Main Campus',
     description: '',
     coverUrl: 'https://picsum.photos/seed/book1/800/1200',
-    coverBackUrl: 'https://picsum.photos/seed/book2/800/1200'
+    coverBackUrl: 'https://picsum.photos/seed/book2/800/1200',
+    available: true,
   });
 
   const bookTypes = [
@@ -45,44 +49,74 @@ const AddBook: React.FC = () => {
     'VITA', 'Canteen', 'Gymnasium Hall', 'Boys Hostel', 'Girls Hostel'
   ];
 
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageBackFile, setImageBackFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    setInitialLoading(true);
+    apiGetBook(id)
+      .then(book => {
+        setFormData({
+          title: book.title || '',
+          author: book.author || '',
+          type: book.category?.includes('Fiction') ? book.category : 'Fiction',
+          language: book.language || 'English',
+          genre: book.subject || 'Romance',
+          pickupPoint: book.pickupPoint || 'Main Campus',
+          description: book.abstract || '',
+          coverUrl: book.image || 'https://picsum.photos/seed/book1/800/1200',
+          coverBackUrl: book.imageBack || 'https://picsum.photos/seed/book2/800/1200',
+          available: book.status === 'available',
+        });
+      })
+      .catch(err => {
+        toast.error("Failed to load book details");
+        console.error(err);
+      })
+      .finally(() => setInitialLoading(false));
+  }, [id]);
 
   const handleNext = () => setStep(step + 1);
   const handleBack = () => setStep(step - 1);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!id) return;
     setLoading(true);
     try {
-      await apiAddBook({
+      await apiEditBook(id, {
         title: formData.title,
         author: formData.author,
         type: formData.type,
         subject: formData.genre,
         pickupPoint: formData.pickupPoint,
-        condition: 'Like New',
         language: formData.language,
-        imageFile: imageFile,
-        imageBackFile: imageBackFile,
-        available: true,
-        abstract: formData.description
+        abstract: formData.description,
+        available: formData.available,
       });
       setStep(4);
-      toast.success("Book curated successfully!");
+      toast.success("Book updated successfully!");
     } catch(err) {
-      toast.error("Failed to curate book: " + (err as Error).message);
+      toast.error("Failed to update book: " + (err as Error).message);
     } finally {
       setLoading(false);
     }
   };
 
+  if (initialLoading) {
+    return (
+      <div className="min-h-[50vh] flex flex-col justify-center items-center py-20 text-on-surface-variant">
+         <Compass size={40} className="animate-spin mb-4 opacity-20" />
+         <p className="font-headline italic text-lg tracking-wide">Loading book details...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto space-y-12 animate-in fade-in duration-700">
       <SectionHeader
-        title="Add a Book"
-        subtitle="List your book for others to borrow."
+        title="Edit Book Details"
+        subtitle="Update the information for this volume."
       />
 
       {/* Progress Bar */}
@@ -111,11 +145,22 @@ const AddBook: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-headline font-bold text-2xl text-on-surface italic tracking-wide">Book Details</h3>
-                <p className="text-xs text-on-surface-variant uppercase tracking-widest font-bold mt-1">Enter the basic information of the book</p>
+                <p className="text-xs text-on-surface-variant uppercase tracking-widest font-bold mt-1">Update the basic information of the book</p>
               </div>
             </div>
 
             <div className="space-y-6">
+              <div className="flex items-center justify-between bg-surface-container-low p-4 rounded-sm border border-outline-variant">
+                <div>
+                   <h4 className="font-headline font-bold text-on-surface text-lg">Availability Status</h4>
+                   <p className="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">Is this book currently available for others?</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" checked={formData.available} onChange={(e) => setFormData({...formData, available: e.target.checked})} />
+                  <div className="w-11 h-6 bg-outline-variant/30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+              </div>
+
               <div className="space-y-3">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
                   <BookOpen size={14} className="text-primary" />
@@ -208,7 +253,7 @@ const AddBook: React.FC = () => {
               disabled={!formData.title || !formData.author}
               className="mt-10 w-full py-4 bg-primary text-on-primary rounded-sm font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"
             >
-              Next: Add Photo
+              Next: Photos
               <ArrowRight size={18} />
             </button>
           </motion.div>
@@ -226,67 +271,31 @@ const AddBook: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-headline font-bold text-2xl text-on-surface italic tracking-wide">Book Photo</h3>
-                <p className="text-xs text-on-surface-variant uppercase tracking-widest font-bold mt-1">Take or upload a picture of the book</p>
+                <p className="text-xs text-on-surface-variant uppercase tracking-widest font-bold mt-1">Photos cannot be changed for transparency.</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Front Cover */}
-              <div
-                 className="aspect-[3/4] w-full relative rounded-sm overflow-hidden border-2 border-dashed border-outline-variant group cursor-pointer hover:border-primary transition-all bg-surface"
-                 onClick={() => document.getElementById('bookImageUpload')?.click()}
-              >
+              <div className="aspect-[3/4] w-full relative rounded-sm overflow-hidden border-2 border-outline-variant/50 bg-surface">
                 <img
                   src={formData.coverUrl}
                   alt="Front Preview"
-                  className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                  className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors bg-surface/20 backdrop-blur-[2px]">
-                  <Camera size={48} strokeWidth={1} className="mb-4" />
-                  <span className="font-bold uppercase tracking-widest text-xs">Scan Front Cover</span>
-                </div>
-                <input
-                  id="bookImageUpload"
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                       setImageFile(e.target.files[0]);
-                       setFormData({...formData, coverUrl: URL.createObjectURL(e.target.files[0])});
-                    }
-                  }}
-                />
+                <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded-sm uppercase tracking-widest">Current Front</div>
               </div>
 
               {/* Back Cover */}
-              <div
-                 className="aspect-[3/4] w-full relative rounded-sm overflow-hidden border-2 border-dashed border-outline-variant group cursor-pointer hover:border-secondary transition-all bg-surface"
-                 onClick={() => document.getElementById('bookBackImageUpload')?.click()}
-              >
+              <div className="aspect-[3/4] w-full relative rounded-sm overflow-hidden border-2 border-outline-variant/50 bg-surface">
                 <img
                   src={formData.coverBackUrl}
                   alt="Back Preview"
-                  className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                  className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-on-surface-variant group-hover:text-secondary transition-colors bg-surface/20 backdrop-blur-[2px]">
-                  <Camera size={48} strokeWidth={1} className="mb-4" />
-                  <span className="font-bold uppercase tracking-widest text-xs">Scan Back Cover (Opt)</span>
-                </div>
-                <input
-                  id="bookBackImageUpload"
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                       setImageBackFile(e.target.files[0]);
-                       setFormData({...formData, coverBackUrl: URL.createObjectURL(e.target.files[0])});
-                    }
-                  }}
-                />
+                <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded-sm uppercase tracking-widest">Current Back</div>
               </div>
             </div>
 
@@ -301,7 +310,7 @@ const AddBook: React.FC = () => {
                 onClick={handleNext}
                 className="flex-[2] py-4 bg-primary text-on-primary rounded-sm font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-primary/90 transition-all shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"
               >
-                Next: Add Description
+                Next: Edit Description
                 <ArrowRight size={18} />
               </button>
             </div>
@@ -319,13 +328,13 @@ const AddBook: React.FC = () => {
                 <Info size={24} strokeWidth={1.5} />
               </div>
               <div>
-                <h3 className="font-headline font-bold text-2xl text-on-surface italic tracking-wide">Description</h3>
+                <h3 className="font-headline font-bold text-2xl text-on-surface italic tracking-wide">Owner's Note</h3>
                 <p className="text-xs text-on-surface-variant uppercase tracking-widest font-bold mt-1">Tell others about the book's condition</p>
               </div>
             </div>
 
             <div className="space-y-3 border-l-4 border-primary/30 pl-4 py-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Book Description</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Owner's Note</label>
               <textarea
                 rows={6}
                 placeholder="Describe the condition, highlight any marginalia, or explain the significance..."
@@ -347,7 +356,7 @@ const AddBook: React.FC = () => {
                 disabled={loading}
                 className="flex-[2] py-4 bg-primary text-on-primary rounded-sm font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)] disabled:opacity-50"
               >
-                {loading ? 'Saving...' : 'Add Book'}
+                {loading ? 'Saving...' : 'Update Details'}
               </button>
             </div>
           </motion.div>
@@ -362,17 +371,17 @@ const AddBook: React.FC = () => {
             <div className="w-28 h-28 bg-surface border-4 border-secondary/20 rounded-full flex items-center justify-center text-secondary mb-8 shadow-inner">
               <CheckCircle2 size={56} strokeWidth={1} />
             </div>
-            <h2 className="text-4xl font-headline font-bold text-on-surface mb-4 italic tracking-wide">Book Added!</h2>
+            <h2 className="text-4xl font-headline font-bold text-on-surface mb-4 italic tracking-wide">Book Updated!</h2>
             <p className="text-on-surface-variant max-w-sm mb-12 font-body text-lg leading-relaxed">
-              <span className="font-bold text-on-surface font-headline italic">"{formData.title}"</span> has been added to the library.
+              <span className="font-bold text-on-surface font-headline italic">"{formData.title}"</span> has been successfully updated.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full">
               <button
-                onClick={() => navigate('/library')}
+                onClick={() => navigate(`/book/${id}`)}
                 className="flex-1 py-4 bg-surface text-on-surface rounded-sm font-bold uppercase tracking-widest text-xs border border-outline-variant hover:bg-surface-container-high transition-all"
               >
-                View My Books
+                View Book
               </button>
               <button
                 onClick={() => navigate('/')}
@@ -391,4 +400,4 @@ const AddBook: React.FC = () => {
   );
 };
 
-export default AddBook;
+export default EditBook;

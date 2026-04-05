@@ -125,7 +125,7 @@ const Library: React.FC = () => {
                 </div>
 
                 {ownedBooks.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-10">
                     {ownedBooks.map((book) => (
                       <BookCard key={book.id} book={book} />
                     ))}
@@ -152,7 +152,7 @@ const Library: React.FC = () => {
                   <h3 className="font-headline font-bold text-2xl text-on-surface">Currently Retained</h3>
                 </div>
                 {activeBorrows.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-10">
                     {activeBorrows.map((req) => (
                       <div key={req.id} className="relative group flex flex-col bg-surface-container-low rounded-sm overflow-hidden border border-outline-variant/50 hover:border-primary/50 transition-colors">
                         <div className="aspect-[3/4] overflow-hidden">

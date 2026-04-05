@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { apiGetBook, apiSendRequest, apiSaveBook, apiUnsaveBook, apiGetSavedBooks } from '../lib/api';
-import { ArrowLeft, MapPin, User, Calendar, BookOpen, MessageSquare, Share2, Heart, ShieldCheck, Info, X } from 'lucide-react';
+import { ArrowLeft, MapPin, User, Calendar, BookOpen, MessageSquare, Share2, Heart, ShieldCheck, Info, X, Globe } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getCurrentUser } from '../lib/auth';
 import toast from 'react-hot-toast';
@@ -181,40 +181,49 @@ const BookDetails: React.FC = () => {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
             <Link to={`/user/${book.ownerId}`}>
-              <InfoBox icon={<User size={20} strokeWidth={1.5} />} label="Owner" value={book.owner?.name || 'Unknown'} />
+              <InfoBox icon={<User size={20} strokeWidth={1.5} />} label="Owner" value={book.owner?.name || book.ownerName || 'Unknown'} />
             </Link>
             <InfoBox icon={<MapPin size={20} strokeWidth={1.5} />} label="Pickup Point" value={book.pickupPoint || 'Main Campus'} />
             <InfoBox icon={<BookOpen size={20} strokeWidth={1.5} />} label="Condition" value={book.condition || 'Good'} />
-            <InfoBox icon={<ShieldCheck size={20} strokeWidth={1.5} />} label="Security" value="Verified Vault" />
+            <InfoBox icon={<Globe size={20} strokeWidth={1.5} />} label="Language" value={book.language || 'English'} />
           </div>
 
           <div className="mb-12 border-l-4 border-primary/30 pl-6 py-2">
             <h3 className="font-headline font-bold text-xl text-on-surface mb-4 tracking-wide uppercase text-sm">Owner's Note</h3>
-            <p className="text-on-surface-variant/90 leading-relaxed font-body text-lg italic">
-              "This is a pristine edition containing significant marginalia related to {book.category}. I'm happy to share it with fellow scholars who appreciate the depth of this work. Please maintain its integrity."
+            <p className="text-on-surface-variant/90 leading-relaxed font-body text-lg italic whitespace-pre-wrap">
+              {book.abstract ? `"${book.abstract}"` : "The owner hasn't left a specific note for this volume."}
             </p>
           </div>
 
           <div className="mt-auto p-8 bg-surface-container-low rounded-sm border-2 border-outline-variant/50 shadow-inner">
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="flex-1 text-center md:text-left">
-                <h4 className="font-headline font-bold text-xl text-on-surface mb-2 tracking-wide italic">Request Book</h4>
+                <h4 className="font-headline font-bold text-xl text-on-surface mb-2 tracking-wide italic">{isOwner ? 'Manage Book' : 'Request Book'}</h4>
                 <p className="text-sm text-on-surface-variant font-body">
-                  Submit a formal request to {book.ownerName} to borrow this volume.
+                  {isOwner ? 'Update the details or status of your listed volume.' : `Submit a formal request to ${book.ownerName || 'the owner'} to borrow this volume.`}
                 </p>
               </div>
               <div className="flex items-center gap-4 w-full md:w-auto">
-                {!isOwner && book.status === 'available' && (
+                {isOwner ? (
+                  <Link 
+                    to={`/edit/${book.id}`}
+                    className="flex-1 md:flex-none px-8 py-4 bg-secondary text-on-secondary rounded-sm font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 hover:bg-secondary/90 transition-all shadow-sm"
+                  >
+                    Edit Details
+                  </Link>
+                ) : book.status === 'available' ? (
                   <button 
                     onClick={() => setShowRequestModal(true)}
                     className="flex-1 md:flex-none px-8 py-4 bg-primary text-on-primary rounded-sm font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"
                   >
                     Submit Request
                   </button>
+                ) : null}
+                {!isOwner && (
+                  <Link to="/messages" className="p-4 bg-surface text-on-surface rounded-sm border border-outline-variant hover:border-primary/50 transition-colors shadow-sm flex items-center justify-center">
+                    <MessageSquare size={16} />
+                  </Link>
                 )}
-                <Link to="/messages" className="p-4 bg-surface text-on-surface rounded-sm border border-outline-variant hover:border-primary/50 transition-colors shadow-sm flex items-center justify-center">
-                  <MessageSquare size={16} />
-                </Link>
               </div>
             </div>
           </div>

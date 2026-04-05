@@ -17,9 +17,9 @@ import { useLayoutShell } from '../context/LayoutContext';
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-  { icon: BookOpen, label: 'Browse Books', path: '/browse' },
+  { icon: BookOpen, label: 'Browse Books', path: '/explore' },
   { icon: PlusCircle, label: 'Add Book', path: '/add' },
-  { icon: Library, label: 'My Books', path: '/my-books' },
+  { icon: Library, label: 'My Books', path: '/library' },
   { icon: ArrowLeftRight, label: 'Requests', path: '/requests' },
   { icon: MessageSquare, label: 'Messages', path: '/messages' },
 ];
@@ -54,7 +54,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'h-screen w-64 max-w-[85vw] fixed left-0 top-0 border-r border-primary/10 bg-surface-container flex flex-col p-4 gap-2 z-50 transition-transform duration-300 ease-out',
+        'h-screen w-64 max-w-[85vw] fixed left-0 top-0 border-r border-primary/20 bg-surface-container-high flex flex-col p-4 gap-2 z-50 transition-transform duration-300 ease-out shadow-sm',
         'md:translate-x-0',
         open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       )}

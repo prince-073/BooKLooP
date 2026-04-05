@@ -147,7 +147,11 @@ export async function apiUploadAvatar(file: File) {
 }
 
 export async function apiGetUser(id: string) {
-  const res = await fetch(`${API_BASE_URL}/api/users/${id}`);
+  const token = getToken();
+  const headers: Record<string, string> = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  
+  const res = await fetch(`${API_BASE_URL}/api/users/${id}`, { headers });
   if (!res.ok) throw new Error('Failed to fetch user');
   return await res.json();
 }
@@ -191,6 +195,7 @@ export async function apiAddBook(payload: {
   course?: string;
   pickupPoint?: string;
   condition: string;
+  language?: string;
   abstract?: string;
   image?: string;
   imageBack?: string;
@@ -210,6 +215,7 @@ export async function apiAddBook(payload: {
     if (payload.course) form.append('course', payload.course);
     if (payload.pickupPoint) form.append('pickupPoint', payload.pickupPoint);
     form.append('condition', payload.condition);
+    if (payload.language) form.append('language', payload.language);
     if (payload.abstract) form.append('abstract', payload.abstract);
     form.append('available', String(payload.available ?? true));
     if (payload.image) form.append('image', payload.image);
@@ -219,9 +225,7 @@ export async function apiAddBook(payload: {
 
     const res = await fetch(`${API_BASE_URL}/api/books/add`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
       body: form,
     });
 
@@ -236,11 +240,56 @@ export async function apiAddBook(payload: {
       }
       throw new Error(msg);
     }
-
     return (await res.json()) as any;
   }
-
   return apiPost('/api/books/add', payload, token);
+}
+
+export async function apiEditBook(id: string, payload: {
+  title?: string;
+  author?: string;
+  type?: string;
+  subject?: string;
+  course?: string;
+  pickupPoint?: string;
+  condition?: string;
+  language?: string;
+  abstract?: string;
+  available?: boolean;
+}) {
+  const token = getToken();
+  if (!token) throw new Error('Please login first');
+
+  const form = new FormData();
+  if (payload.title) form.append('title', payload.title);
+  if (payload.author) form.append('author', payload.author);
+  if (payload.type) form.append('type', payload.type);
+  if (payload.subject) form.append('subject', payload.subject);
+  if (payload.course) form.append('course', payload.course);
+  if (payload.pickupPoint) form.append('pickupPoint', payload.pickupPoint);
+  if (payload.condition) form.append('condition', payload.condition);
+  if (payload.language) form.append('language', payload.language);
+  if (payload.abstract !== undefined) form.append('abstract', payload.abstract);
+  if (payload.available !== undefined) form.append('available', String(payload.available));
+
+  const res = await fetch(`${API_BASE_URL}/api/books/${id}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    let msg = `Request failed: ${res.status}`;
+    try {
+      const j = JSON.parse(text);
+      if (j?.error?.message) msg = j.error.message;
+    } catch {
+      if (text) msg += ` ${text}`;
+    }
+    throw new Error(msg);
+  }
+  return (await res.json()) as any;
 }
 
 export async function apiSendRequest(bookId: string, daysRequested = 7) {
@@ -512,3 +561,17 @@ export async function apiGetBlockedUsers() {
   return (await res.json()) as Array<{ id: string; name: string; email: string }>;
 }
 
+export async function apiRequestHandoverOtp(requestId: string) {
+  const token = getToken();
+  return apiPost(`/api/requests/${requestId}/handover-otp`, undefined, token);
+}
+
+export async function apiVerifyHandoverOtp(requestId: string, otp: string) {
+  const token = getToken();
+  return apiPost(`/api/requests/${requestId}/handover-verify`, { otp }, token);
+}
+
+export async function apiNudgeReturn(requestId: string) {
+  const token = getToken();
+  return apiPost(`/api/requests/${requestId}/nudge`, undefined, token);
+}

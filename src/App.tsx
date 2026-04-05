@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import UserProfile from './pages/UserProfile';
 import BookDetails from './pages/BookDetails';
 import AddBook from './pages/AddBook';
+import EditBook from './pages/EditBook';
 import { OtpLogin } from './pages/OtpLogin';
 import SavedBooks from './pages/SavedBooks';
 import { Messages } from './pages/Messages';
@@ -61,6 +62,7 @@ export default function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="user/:id" element={<UserProfile />} />
           <Route path="book/:id" element={<BookDetails />} />
+          <Route path="edit/:id" element={<EditBook />} />
           <Route path="add" element={<AddBook />} />
         </Route>
       </Routes>

@@ -21,8 +21,9 @@ function buildUserRequestListItem(reqDoc, currentUserId) {
     borrowerId: reqDoc.borrowerId,
     daysRequested: reqDoc.daysRequested,
     dueDate: reqDoc.dueDate,
-    returnedAt: reqDoc.returnedAt,
     hasRating: !!reqDoc.rating,
+    ownerRequestedReturn: reqDoc.ownerRequestedReturn,
+    isHandedOver: book.currentBorrowerId === reqDoc.borrowerId,
   };
 }
 
@@ -120,20 +121,8 @@ const acceptRequest = asyncHandler(async (req, res) => {
       select: { id: true, status: true, borrowerId: true, bookId: true },
     });
 
-    await tx.book.update({
-      where: { id: request.bookId },
-      data: { available: false, currentBorrowerId: borrowerId },
-    });
-
     // If the borrower was on the waitlist, remove them since they are now assigned.
     await tx.waitlistEntry.deleteMany({ where: { bookId: request.bookId, userId: borrowerId } });
-
-    // Store borrowing history (unique per user+book).
-    await tx.borrowedBook.upsert({
-      where: { userId_bookId: { userId: borrowerId, bookId: request.bookId } },
-      update: {},
-      create: { userId: borrowerId, bookId: request.bookId },
-    });
 
     return updatedRequest;
   });
@@ -174,7 +163,76 @@ const cancelRequest = asyncHandler(async (req, res) => {
 
 const { generateOtp, sha256 } = require('../utils/otp');
 const { env } = require('../config/env');
-const nodemailer = require('nodemailer');
+const { sendOtpEmail } = require('../utils/email');
+
+const requestHandoverOtp = asyncHandler(async (req, res) => {
+  const viewerId = req.user.id;
+  const { id } = req.params;
+
+  const request = await prisma.request.findUnique({
+    where: { id },
+    include: { borrower: true }
+  });
+  if (!request) throw new ApiError(404, 'Request not found');
+  if (request.status !== 'accepted') throw new ApiError(400, 'Request must be accepted first');
+  if (request.ownerId !== viewerId) throw new ApiError(403, 'Only owner can initiate handover');
+
+  const otp = generateOtp(6);
+  const otpHash = sha256(otp);
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + env.OTP_EXPIRES_MINUTES * 60 * 1000);
+
+  await prisma.request.update({
+    where: { id },
+    data: { handoverOtpHash: otpHash, handoverOtpExpiresAt: expiresAt }
+  });
+
+  await sendOtpEmail(request.borrower.email, otp, 'OTP to Receive Your Book', `<html><body><p>Hello ${request.borrower.name},</p><h2>Provide this code to the owner to verify handover: <b style="color: #4F46E5;">${otp}</b></h2></body></html>`);
+
+  res.json({ ok: true, message: 'OTP sent to borrower' });
+});
+
+const verifyHandoverOtp = asyncHandler(async (req, res) => {
+  const viewerId = req.user.id;
+  const { id } = req.params;
+  const { otp } = req.body;
+
+  if (!otp) throw new ApiError(400, 'otp is required');
+
+  const request = await prisma.request.findUnique({ where: { id } });
+  if (!request) throw new ApiError(404, 'Request not found');
+  if (request.status !== 'accepted') throw new ApiError(400, 'Request is not accepted');
+  if (request.ownerId !== viewerId) throw new ApiError(403, 'Only owner can verify handover OTP');
+
+  if (!request.handoverOtpHash || !request.handoverOtpExpiresAt) {
+    throw new ApiError(400, 'No handover OTP has been requested');
+  }
+
+  if (new Date() > request.handoverOtpExpiresAt) {
+    throw new ApiError(400, 'Handover OTP has expired');
+  }
+
+  const incomingHash = sha256(otp);
+  if (incomingHash !== request.handoverOtpHash) {
+    throw new ApiError(401, 'Invalid OTP code');
+  }
+
+  // Handover verified! Mark book as taken.
+  await prisma.$transaction(async (tx) => {
+    await tx.book.update({
+      where: { id: request.bookId },
+      data: { available: false, currentBorrowerId: request.borrowerId },
+    });
+
+    await tx.borrowedBook.upsert({
+      where: { userId_bookId: { userId: request.borrowerId, bookId: request.bookId } },
+      update: {},
+      create: { userId: request.borrowerId, bookId: request.bookId },
+    });
+  });
+
+  res.json({ id: request.id, status: 'accepted', message: 'Handover complete. Book tracking started.' });
+});
 
 const requestReturnOtp = asyncHandler(async (req, res) => {
   const viewerId = req.user.id;
@@ -198,10 +256,7 @@ const requestReturnOtp = asyncHandler(async (req, res) => {
     data: { returnOtpHash: otpHash, returnOtpExpiresAt: expiresAt }
   });
 
-  // Log to console for dev, or email if configured
-  console.log(`\n\n=== RETURN OTP FOR BOOK ${request.bookId} ===`);
-  console.log(`Share this OTP with the borrower: ${otp}`);
-  console.log(`===================================\n\n`);
+  await sendOtpEmail(request.owner.email, otp, 'OTP to Receive Your Returned Book', `<html><body><p>Hello ${request.owner.name},</p><h2>Provide this code to the borrower to confirm return: <b style="color: #4F46E5;">${otp}</b></h2></body></html>`);
 
   res.json({ ok: true, message: 'OTP generated and sent to owner' });
 });
@@ -234,6 +289,23 @@ const verifyReturnOtp = asyncHandler(async (req, res) => {
   // OTP matches! Mark as completed
   req.params.id = id;
   return completeRequest(req, res);
+});
+
+const nudgeReturn = asyncHandler(async (req, res) => {
+  const viewerId = req.user.id;
+  const { id } = req.params;
+
+  const request = await prisma.request.findUnique({ where: { id } });
+  if (!request) throw new ApiError(404, 'Request not found');
+  if (request.ownerId !== viewerId) throw new ApiError(403, 'Only owner can request return nudge');
+  if (request.status !== 'accepted') throw new ApiError(400, 'Book is not actively borrowed');
+
+  await prisma.request.update({
+    where: { id },
+    data: { ownerRequestedReturn: true }
+  });
+
+  res.json({ id: request.id, ownerRequestedReturn: true, message: 'Return Nudge sent to borrower.' });
 });
 
 // Not in your listed API table, but required to support "When book returned".
@@ -322,7 +394,10 @@ module.exports = {
   rejectRequest,
   cancelRequest,
   completeRequest,
+  requestHandoverOtp,
+  verifyHandoverOtp,
   requestReturnOtp,
   verifyReturnOtp,
+  nudgeReturn,
 };
 

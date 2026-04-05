@@ -5,6 +5,7 @@ import {
   apiAcceptRequest, apiCancelRequest, apiCompleteRequest, 
   apiGetUserRequests, apiRejectRequest, 
   apiModifyRequest, apiRequestReturnOtp, apiVerifyReturnOtp,
+  apiRequestHandoverOtp, apiVerifyHandoverOtp, apiNudgeReturn,
   apiSubmitRating
 } from '../lib/api';
 import { Link } from 'react-router-dom';
@@ -19,6 +20,8 @@ type RequestItem = {
   isOutgoing: boolean;
   daysRequested?: number;
   hasRating?: boolean;
+  isHandedOver?: boolean;
+  ownerRequestedReturn?: boolean;
 };
 
 export function Requests() {
@@ -35,6 +38,7 @@ export function Requests() {
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [otpId, setOtpId] = useState('');
   const [otpValue, setOtpValue] = useState('');
+  const [otpType, setOtpType] = useState<'handover' | 'return'>('return');
 
   const [rateModalOpen, setRateModalOpen] = useState(false);
   const [rateId, setRateId] = useState('');
@@ -66,8 +70,9 @@ export function Requests() {
     try {
       await apiAcceptRequest(id);
       await load();
+      toast.success('Request accepted! Arrange to handover the book.');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to accept request');
+      toast.error(e instanceof Error ? e.message : 'Failed to accept');
     } finally {
       setActingId(null);
     }
@@ -79,7 +84,7 @@ export function Requests() {
       await apiRejectRequest(id);
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to reject request');
+      toast.error(e instanceof Error ? e.message : 'Failed to reject');
     } finally {
       setActingId(null);
     }
@@ -91,25 +96,13 @@ export function Requests() {
       await apiCancelRequest(id);
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to cancel request');
+      toast.error(e instanceof Error ? e.message : 'Failed to cancel');
     } finally {
       setActingId(null);
     }
   }
 
-  async function onComplete(id: string) {
-    setActingId(id);
-    try {
-      await apiCompleteRequest(id);
-      await load();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to mark returned');
-    } finally {
-      setActingId(null);
-    }
-  }
-
-  // Modiify Flow
+  // Modify Flow
   function openModify(id: string, days: number) {
     setModifyId(id);
     setModifyDays(days);
@@ -131,16 +124,22 @@ export function Requests() {
   }
 
   // OTP Flow
-  function openOtp(id: string) {
+  function openOtp(id: string, type: 'handover' | 'return') {
     setOtpId(id);
     setOtpValue('');
+    setOtpType(type);
     setOtpModalOpen(true);
   }
 
   async function handleRequestOtp() {
     try {
-      const res = await apiRequestReturnOtp(otpId);
-      toast.success(res.message || 'OTP asked.');
+      let res;
+      if (otpType === 'return') {
+        res = await apiRequestReturnOtp(otpId);
+      } else {
+        res = await apiRequestHandoverOtp(otpId);
+      }
+      toast.success(res.message || 'Authorization code sent!');
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -149,14 +148,31 @@ export function Requests() {
   async function handleVerifyOtp() {
     setLoading(true);
     try {
-      await apiVerifyReturnOtp(otpId, otpValue);
-      toast.success('Return verified successfully!');
+      if (otpType === 'return') {
+        await apiVerifyReturnOtp(otpId, otpValue);
+        toast.success('Return verified successfully!');
+      } else {
+        await apiVerifyHandoverOtp(otpId, otpValue);
+        toast.success('Handover complete! The user now has your book.');
+      }
       setOtpModalOpen(false);
       await load();
     } catch (e: any) {
       toast.error(e.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleNudge(id: string) {
+    setActingId(id);
+    try {
+      await apiNudgeReturn(id);
+      await load();
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setActingId(null);
     }
   }
 
@@ -207,6 +223,8 @@ export function Requests() {
                 onReject={() => onReject(item.id)}
                 onModify={() => openModify(item.id, item.daysRequested || 7)}
                 onRate={() => openRate(item.id)}
+                onHandoverOtp={() => openOtp(item.id, 'handover')}
+                onNudge={() => handleNudge(item.id)}
                 acting={actingId === item.id}
               />
             ))
@@ -226,7 +244,7 @@ export function Requests() {
                 key={item.id}
                 {...item}
                 onCancel={() => onCancel(item.id)}
-                onReturnOtp={() => openOtp(item.id)}
+                onReturnOtp={() => openOtp(item.id, 'return')}
                 acting={actingId === item.id}
               />
             ))
@@ -370,11 +388,11 @@ export function Requests() {
 }
 
 function RequestCard({
-  title, user, id, status, image, isOutgoing, daysRequested, hasRating,
-  onAccept, onReject, onModify, onCancel, onReturnOtp, onRate, acting,
+  title, user, id, status, image, isOutgoing, daysRequested, hasRating, isHandedOver, ownerRequestedReturn,
+  onAccept, onReject, onModify, onCancel, onReturnOtp, onHandoverOtp, onNudge, onRate, acting,
 }: {
-  title: string; user: string; id: string; status: string; image: string; isOutgoing: boolean; daysRequested?: number; hasRating?: boolean;
-  onAccept?: () => void; onReject?: () => void; onModify?: () => void; onCancel?: () => void; onComplete?: () => void; onReturnOtp?: () => void; onRate?: () => void; acting: boolean;
+  title: string; user: string; id: string; status: string; image: string; isOutgoing: boolean; daysRequested?: number; hasRating?: boolean; isHandedOver?: boolean; ownerRequestedReturn?: boolean;
+  onAccept?: () => void; onReject?: () => void; onModify?: () => void; onCancel?: () => void; onComplete?: () => void; onReturnOtp?: () => void; onHandoverOtp?: () => void; onNudge?: () => void; onRate?: () => void; acting: boolean;
 }) {
   return (
     <div className="group bg-surface-container-lowest p-5 rounded-sm transition-all duration-300 hover:border-primary/50 border border-outline-variant/50 shadow-sm flex flex-col sm:flex-row gap-5">
@@ -462,20 +480,56 @@ function RequestCard({
             </button>
           )}
 
-          {isOutgoing && status === 'accepted' && onReturnOtp && (
+          {/* OWNER SIDE: Accepted & Not Handed Over -> Init Handover */}
+          {!isOutgoing && status === 'accepted' && !isHandedOver && onHandoverOtp && (
             <button
-              onClick={onReturnOtp}
+              onClick={onHandoverOtp}
               disabled={acting}
-              className="w-full py-3 bg-tertiary text-on-tertiary text-[10px] font-bold uppercase tracking-widest rounded-sm hover:bg-tertiary/90 transition-all disabled:opacity-50 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)] flex items-center justify-center gap-2"
+              className="w-full py-3 bg-secondary text-on-secondary text-[10px] font-bold uppercase tracking-widest rounded-sm hover:bg-secondary/90 transition-all disabled:opacity-50 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)] flex items-center justify-center gap-2"
             >
-               <KeyRound size={14} /> Enter Return Code
+               <KeyRound size={14} /> Provide Book (Handover OTP)
             </button>
           )}
 
-          {!isOutgoing && status === 'accepted' && (
+          {/* OWNER SIDE: Accepted & Handed Over -> Wait for Return / Nudge */}
+          {!isOutgoing && status === 'accepted' && isHandedOver && (
+            <div className="w-full flex gap-2">
+              <div className="flex-1 py-2.5 text-center text-on-surface-variant text-[10px] font-bold uppercase tracking-widest rounded-sm border-2 border-dashed border-outline-variant/50 bg-surface-container-lowest flex items-center justify-center">
+                Waiting for Return
+              </div>
+              {!ownerRequestedReturn && onNudge && (
+                <button
+                  onClick={onNudge}
+                  disabled={acting}
+                  className="px-4 py-2 bg-surface border border-outline-variant text-[10px] text-on-surface font-bold uppercase tracking-widest rounded-sm hover:border-primary transition-all active:scale-[0.98] disabled:opacity-50 shrink-0"
+                >
+                  Nudge
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* BORROWER SIDE: Accepted & Not Handed Over -> Waiting */}
+          {isOutgoing && status === 'accepted' && !isHandedOver && (
              <div className="w-full py-2.5 text-center text-on-surface-variant text-[10px] font-bold uppercase tracking-widest rounded-sm border-2 border-dashed border-outline-variant/50 bg-surface-container-lowest">
-               Waiting for Return
+               Waiting for Physical Handover
              </div>
+          )}
+
+          {/* BORROWER SIDE: Accepted & Handed Over -> Init Return */}
+          {isOutgoing && status === 'accepted' && isHandedOver && onReturnOtp && (
+            <div className="w-full flex flex-col gap-2">
+              {ownerRequestedReturn && (
+                <span className="text-[10px] font-bold text-error uppercase tracking-widest text-center italic">The owner nudged you to return this!</span>
+              )}
+              <button
+                onClick={onReturnOtp}
+                disabled={acting}
+                className="w-full py-3 bg-tertiary text-on-tertiary text-[10px] font-bold uppercase tracking-widest rounded-sm hover:bg-tertiary/90 transition-all disabled:opacity-50 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)] flex items-center justify-center gap-2"
+              >
+                 <KeyRound size={14} /> Return Book (Return OTP)
+              </button>
+            </div>
           )}
 
           {!isOutgoing && status === 'completed' && !hasRating && (
