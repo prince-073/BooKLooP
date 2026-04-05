@@ -222,14 +222,14 @@ const Home: React.FC = () => {
             <div className="p-5 bg-surface-container-low rounded-sm border border-outline-variant flex items-center justify-between">
               <div>
                  <p className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest mb-1">Your Books</p>
-                 <span className="text-3xl font-headline font-bold text-on-surface">{userData ? userData.booksOwned.length : '-'}</span>
+                 <span className="text-3xl font-headline font-bold text-on-surface">{userData ? (userData.booksOwned?.length ?? 0) : '-'}</span>
               </div>
               <Link to="/profile" className="text-xs text-primary font-bold uppercase tracking-widest hover:underline">Manage</Link>
             </div>
             <div className="p-5 bg-surface-container-low rounded-sm border border-outline-variant flex items-center justify-between">
               <div>
                  <p className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest mb-1">Active Requests</p>
-                 <span className="text-3xl font-headline font-bold text-on-surface">{userData ? userData.booksBorrowed?.length || '0' : '-'}</span>
+                 <span className="text-3xl font-headline font-bold text-on-surface">{userData ? (userData.booksBorrowed?.length ?? 0) : '-'}</span>
               </div>
               <Link to="/requests" className="text-xs text-primary font-bold uppercase tracking-widest hover:underline">View</Link>
             </div>

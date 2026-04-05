@@ -59,7 +59,7 @@ const EditBook: React.FC = () => {
         setFormData({
           title: book.title || '',
           author: book.author || '',
-          type: book.category?.includes('Fiction') ? book.category : 'Fiction',
+          type: book.type || 'Fiction',
           language: book.language || 'English',
           genre: book.subject || 'Romance',
           pickupPoint: book.pickupPoint || 'Main Campus',

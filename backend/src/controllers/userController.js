@@ -4,7 +4,17 @@ const { asyncHandler } = require('../utils/asyncHandler');
 
 const getUserById = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const user = await prisma.user.findUnique({ where: { id } });
+  const user = await prisma.user.findUnique({
+    where: { id },
+    include: {
+      booksListed: {
+        select: { id: true, title: true, image: true, available: true, subject: true, condition: true }
+      },
+      booksBorrowed: {
+        select: { id: true, title: true, image: true, available: true }
+      },
+    }
+  });
   
   if (!user) {
     throw new ApiError(404, 'User not found');
@@ -20,7 +30,9 @@ const getUserById = asyncHandler(async (req, res) => {
     phone: user.phoneVisible ? user.phone : null,
     phoneVisible: user.phoneVisible,
     bio: user.bio,
-    createdAt: user.createdAt
+    createdAt: user.createdAt,
+    booksOwned: user.booksListed || [],
+    booksBorrowed: user.booksBorrowed || [],
   });
 });
 
