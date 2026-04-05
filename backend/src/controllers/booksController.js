@@ -153,6 +153,16 @@ const updateBook = asyncHandler(async (req, res) => {
     }
   }
 
+  // Handle uploaded image files (from multipart/form-data)
+  const uploadedFile = req.files && req.files['imageFile'] ? req.files['imageFile'][0] : null;
+  if (uploadedFile) {
+    updates.image = uploadedFile.path;
+  }
+  const uploadedBackFile = req.files && req.files['imageBackFile'] ? req.files['imageBackFile'][0] : null;
+  if (uploadedBackFile) {
+    updates.imageBack = uploadedBackFile.path;
+  }
+
   if (Object.prototype.hasOwnProperty.call(updates, 'available') && updates.available === true) {
     updates.currentBorrowerId = null;
   }

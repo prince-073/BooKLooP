@@ -58,7 +58,7 @@ const getUserRequests = asyncHandler(async (req, res) => {
     where: { OR: [{ borrowerId: userId }, { ownerId: userId }] },
     orderBy: { createdAt: 'desc' },
     include: {
-      book: { select: { id: true, title: true, image: true, available: true } },
+      book: { select: { id: true, title: true, image: true, available: true, currentBorrowerId: true } },
       owner: { select: { id: true, name: true } },
       borrower: { select: { id: true, name: true } },
       rating: true,

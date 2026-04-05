@@ -1,18 +1,21 @@
-const fs = require('fs');
-const path = require('path');
 const multer = require('multer');
+const { v2: cloudinary } = require('cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-const avatarsDir = path.join(process.cwd(), 'uploads', 'avatars');
-if (!fs.existsSync(avatarsDir)) {
-  fs.mkdirSync(avatarsDir, { recursive: true });
-}
+// Configure Cloudinary using environment variables
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, avatarsDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname || '').toLowerCase();
-    const safeExt = ext || '.jpg';
-    cb(null, `avatar-${Date.now()}-${Math.round(Math.random() * 1e9)}${safeExt}`);
+// Use Cloudinary storage so avatars persist across server restarts
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'bookloop_avatars',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }],
   },
 });
 
@@ -27,7 +30,7 @@ function fileFilter(_req, file, cb) {
 const uploadAvatar = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 }, // increased to 10MB
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
 }).single('avatar');
 
 module.exports = { uploadAvatar };

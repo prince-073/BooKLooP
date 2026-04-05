@@ -248,7 +248,8 @@ const updateAvatar = asyncHandler(async (req, res) => {
   if (!req.file) throw new ApiError(400, 'avatar image is required');
 
   const userId = req.user.id;
-  const avatarUrl = `${req.protocol}://${req.get('host')}/uploads/avatars/${req.file.filename}`;
+  // With Cloudinary storage, req.file.path contains the full Cloudinary URL
+  const avatarUrl = req.file.path;
 
   const user = await prisma.user.update({
     where: { id: userId },

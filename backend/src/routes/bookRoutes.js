@@ -13,7 +13,7 @@ router.get('/saved', authMiddleware, getSavedBooks);
 router.get('/:id', getBookById);
 
 router.post('/add', authMiddleware, withMulter(uploadBookImage), addBook);
-router.put('/:id', authMiddleware, updateBook);
+router.put('/:id', authMiddleware, withMulter(uploadBookImage), updateBook);
 router.delete('/:id', authMiddleware, deleteBook);
 
 router.post('/:id/join-waitlist', authMiddleware, joinWaitlist);

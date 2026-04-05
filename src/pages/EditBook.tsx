@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -12,6 +12,8 @@ const EditBook: React.FC = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [initialLoading, setInitialLoading] = useState(true);
+  const frontInputRef = useRef<HTMLInputElement>(null);
+  const backInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -25,6 +27,12 @@ const EditBook: React.FC = () => {
     coverBackUrl: 'https://picsum.photos/seed/book2/800/1200',
     available: true,
   });
+  
+  // New image files selected by user (null = keep existing)
+  const [newFrontFile, setNewFrontFile] = useState<File | null>(null);
+  const [newBackFile, setNewBackFile] = useState<File | null>(null);
+  const [frontPreview, setFrontPreview] = useState<string | null>(null);
+  const [backPreview, setBackPreview] = useState<string | null>(null);
 
   const bookTypes = [
     'Fiction', 'Non-Fiction', 'Novel', 'Short Story Collection', 'Novella', 'Poetry Book', 'Drama / Play',
@@ -79,6 +87,22 @@ const EditBook: React.FC = () => {
   const handleNext = () => setStep(step + 1);
   const handleBack = () => setStep(step - 1);
 
+  const handleFrontFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setNewFrontFile(file);
+      setFrontPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleBackFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setNewBackFile(file);
+      setBackPreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
@@ -93,6 +117,8 @@ const EditBook: React.FC = () => {
         language: formData.language,
         abstract: formData.description,
         available: formData.available,
+        imageFile: newFrontFile,
+        imageBackFile: newBackFile,
       });
       setStep(4);
       toast.success("Book updated successfully!");
@@ -270,32 +296,64 @@ const EditBook: React.FC = () => {
                 <Camera size={24} strokeWidth={1.5} />
               </div>
               <div>
-                <h3 className="font-headline font-bold text-2xl text-on-surface italic tracking-wide">Book Photo</h3>
-                <p className="text-xs text-on-surface-variant uppercase tracking-widest font-bold mt-1">Photos cannot be changed for transparency.</p>
+                <h3 className="font-headline font-bold text-2xl text-on-surface italic tracking-wide">Update Photos</h3>
+                <p className="text-xs text-on-surface-variant uppercase tracking-widest font-bold mt-1">Click on a cover to change it (optional)</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Front Cover */}
-              <div className="aspect-[3/4] w-full relative rounded-sm overflow-hidden border-2 border-outline-variant/50 bg-surface">
-                <img
-                  src={formData.coverUrl}
-                  alt="Front Preview"
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded-sm uppercase tracking-widest">Current Front</div>
+              <div className="flex flex-col gap-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Front Cover</span>
+                <div
+                  className="aspect-[3/4] w-full relative rounded-sm overflow-hidden border-2 border-outline-variant/50 bg-surface group cursor-pointer"
+                  onClick={() => frontInputRef.current?.click()}
+                >
+                  <img
+                    src={frontPreview || formData.coverUrl}
+                    alt="Front Preview"
+                    className="w-full h-full object-cover transition-all duration-300 group-hover:brightness-75"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera className="text-white mb-2" size={32} strokeWidth={1.5} />
+                    <span className="text-white text-[10px] font-bold uppercase tracking-widest">Change Photo</span>
+                  </div>
+                  {frontPreview && (
+                    <div className="absolute top-2 right-2 bg-secondary text-on-secondary text-[10px] px-2 py-1 rounded-sm uppercase tracking-widest">New</div>
+                  )}
+                  {!frontPreview && (
+                    <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded-sm uppercase tracking-widest">Current</div>
+                  )}
+                </div>
+                <input ref={frontInputRef} type="file" accept="image/*" className="hidden" onChange={handleFrontFileSelect} />
               </div>
 
               {/* Back Cover */}
-              <div className="aspect-[3/4] w-full relative rounded-sm overflow-hidden border-2 border-outline-variant/50 bg-surface">
-                <img
-                  src={formData.coverBackUrl}
-                  alt="Back Preview"
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded-sm uppercase tracking-widest">Current Back</div>
+              <div className="flex flex-col gap-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Back Cover</span>
+                <div
+                  className="aspect-[3/4] w-full relative rounded-sm overflow-hidden border-2 border-outline-variant/50 bg-surface group cursor-pointer"
+                  onClick={() => backInputRef.current?.click()}
+                >
+                  <img
+                    src={backPreview || formData.coverBackUrl}
+                    alt="Back Preview"
+                    className="w-full h-full object-cover transition-all duration-300 group-hover:brightness-75"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera className="text-white mb-2" size={32} strokeWidth={1.5} />
+                    <span className="text-white text-[10px] font-bold uppercase tracking-widest">Change Photo</span>
+                  </div>
+                  {backPreview && (
+                    <div className="absolute top-2 right-2 bg-secondary text-on-secondary text-[10px] px-2 py-1 rounded-sm uppercase tracking-widest">New</div>
+                  )}
+                  {!backPreview && (
+                    <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded-sm uppercase tracking-widest">Current</div>
+                  )}
+                </div>
+                <input ref={backInputRef} type="file" accept="image/*" className="hidden" onChange={handleBackFileSelect} />
               </div>
             </div>
 

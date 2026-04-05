@@ -256,6 +256,8 @@ export async function apiEditBook(id: string, payload: {
   language?: string;
   abstract?: string;
   available?: boolean;
+  imageFile?: File | null;
+  imageBackFile?: File | null;
 }) {
   const token = getToken();
   if (!token) throw new Error('Please login first');
@@ -271,6 +273,8 @@ export async function apiEditBook(id: string, payload: {
   if (payload.language) form.append('language', payload.language);
   if (payload.abstract !== undefined) form.append('abstract', payload.abstract);
   if (payload.available !== undefined) form.append('available', String(payload.available));
+  if (payload.imageFile) form.append('imageFile', payload.imageFile);
+  if (payload.imageBackFile) form.append('imageBackFile', payload.imageBackFile);
 
   const res = await fetch(`${API_BASE_URL}/api/books/${id}`, {
     method: 'PUT',
