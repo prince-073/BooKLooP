@@ -22,6 +22,8 @@ type RequestItem = {
   hasRating?: boolean;
   isHandedOver?: boolean;
   ownerRequestedReturn?: boolean;
+  borrowerId?: string;
+  ownerId?: string;
 };
 
 export function Requests() {
@@ -226,6 +228,7 @@ export function Requests() {
                 onHandoverOtp={() => openOtp(item.id, 'handover')}
                 onNudge={() => handleNudge(item.id)}
                 acting={actingId === item.id}
+                profileId={item.borrowerId}
               />
             ))
           )}
@@ -389,9 +392,9 @@ export function Requests() {
 
 function RequestCard({
   title, user, id, status, image, isOutgoing, daysRequested, hasRating, isHandedOver, ownerRequestedReturn,
-  onAccept, onReject, onModify, onCancel, onReturnOtp, onHandoverOtp, onNudge, onRate, acting,
+  onAccept, onReject, onModify, onCancel, onReturnOtp, onHandoverOtp, onNudge, onRate, acting, profileId,
 }: {
-  title: string; user: string; id: string; status: string; image: string; isOutgoing: boolean; daysRequested?: number; hasRating?: boolean; isHandedOver?: boolean; ownerRequestedReturn?: boolean;
+  title: string; user: string; id: string; status: string; image: string; isOutgoing: boolean; daysRequested?: number; hasRating?: boolean; isHandedOver?: boolean; ownerRequestedReturn?: boolean; profileId?: string;
   onAccept?: () => void; onReject?: () => void; onModify?: () => void; onCancel?: () => void; onComplete?: () => void; onReturnOtp?: () => void; onHandoverOtp?: () => void; onNudge?: () => void; onRate?: () => void; acting: boolean;
 }) {
   return (
@@ -427,14 +430,30 @@ function RequestCard({
             </div>
           </div>
           <div className="flex items-center gap-3 mb-4">
-            <img
-              src={getAvatarUrl({ name: user })}
-              alt={user}
-              className="w-6 h-6 rounded-full border border-outline"
-            />
-            <span className="text-sm font-body text-on-surface-variant italic">
-              {isOutgoing ? 'Owner:' : 'Borrower:'} <span className="text-on-surface font-bold font-headline not-italic">{user}</span>
-            </span>
+            {!isOutgoing && profileId ? (
+              <Link to={`/user/${profileId}`} className="flex items-center gap-2 group/profile hover:opacity-80 transition-opacity">
+                <img
+                  src={getAvatarUrl({ name: user })}
+                  alt={user}
+                  className="w-7 h-7 rounded-full border border-outline group-hover/profile:border-primary transition-colors"
+                />
+                <span className="text-sm font-body text-on-surface-variant italic">
+                  Borrower: <span className="text-primary font-bold font-headline not-italic underline underline-offset-2 decoration-primary/30">{user}</span>
+                </span>
+                <span className="text-[9px] text-primary/60 font-bold uppercase tracking-widest border border-primary/20 px-1.5 py-0.5 rounded-full">View Profile</span>
+              </Link>
+            ) : (
+              <div className="flex items-center gap-2">
+                <img
+                  src={getAvatarUrl({ name: user })}
+                  alt={user}
+                  className="w-7 h-7 rounded-full border border-outline"
+                />
+                <span className="text-sm font-body text-on-surface-variant italic">
+                  {isOutgoing ? 'Owner:' : 'Borrower:'} <span className="text-on-surface font-bold font-headline not-italic">{user}</span>
+                </span>
+              </div>
+            )}
           </div>
           {daysRequested && (
             <div className="text-[10px] uppercase tracking-widest font-bold text-on-surface mb-5 bg-surface-container border border-outline-variant w-fit px-3 py-1 rounded-sm shadow-inner">

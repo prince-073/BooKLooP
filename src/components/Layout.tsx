@@ -1,11 +1,13 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { Home, Search, Library, Bell, User, PlusCircle, Heart, MessageSquare } from 'lucide-react';
+import { Home, Search, Library, Bell, User, PlusCircle, Heart, MessageSquare, HelpCircle, Info } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { OnboardingTour } from './OnboardingTour';
 
 const Layout: React.FC = () => {
   return (
     <div className="min-h-screen bg-surface flex flex-col paper-grain text-on-surface">
+      <OnboardingTour />
       {/* Main Content Area */}
       <main className="flex-1 pb-24 md:pb-0 md:pl-28 lg:pl-72 pt-4">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 py-8">
@@ -37,6 +39,8 @@ const Layout: React.FC = () => {
           <NavItem to="/messages" icon={<MessageSquare size={26} strokeWidth={1.5} />} label="Messages" />
           <NavItem to="/requests" icon={<Bell size={26} strokeWidth={1.5} />} label="Requests" />
           <NavItem to="/profile" icon={<User size={26} strokeWidth={1.5} />} label="Profile" />
+          <NavItem to="/help" icon={<HelpCircle size={26} strokeWidth={1.5} />} label="Help" />
+          <NavItem to="/about" icon={<Info size={26} strokeWidth={1.5} />} label="About" />
         </div>
 
         {/* Desktop Add Button */}
