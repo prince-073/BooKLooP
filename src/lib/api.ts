@@ -365,6 +365,7 @@ export async function apiGetGlobalActivity() {
   return await res.json() as Array<{
     id: string;
     type: string;
+    userId: string | null;
     userName: string;
     userAvatar: string;
     bookTitle: string;

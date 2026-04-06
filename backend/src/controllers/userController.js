@@ -23,6 +23,7 @@ const getUserById = asyncHandler(async (req, res) => {
   res.json({
     id: user.id,
     name: user.name,
+    email: user.email,
     course: user.course,
     year: user.year,
     role: user.role,

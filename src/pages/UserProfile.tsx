@@ -11,9 +11,12 @@ const UserProfile: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [books, setBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
+      setLoading(true);
+      setError(null);
       Promise.all([
          apiGetUser(id),
          apiGetBooks({ ownerId: id })
@@ -23,7 +26,8 @@ const UserProfile: React.FC = () => {
          setLoading(false);
          apiRecordVisit(id);
       }).catch((e) => {
-         console.error(e);
+         console.error('UserProfile fetch error:', e);
+         setError(e?.message || 'Failed to load profile');
          setLoading(false);
       });
     }
@@ -36,12 +40,16 @@ const UserProfile: React.FC = () => {
      </div>
   );
 
-  if (!user) return (
+  if (error || !user) return (
      <div className="py-24 flex flex-col items-center justify-center text-center max-w-md mx-auto">
-        <h2 className="text-3xl font-headline font-bold text-on-surface mb-4 italic">User Not Found</h2>
-        <p className="text-on-surface-variant font-body leading-relaxed mb-8">This profile could not be located in our records.</p>
-        <Link to="/explore" className="px-8 py-3 bg-primary text-on-primary rounded-full font-bold uppercase tracking-widest text-xs shadow-md hover:shadow-lg transition-shadow">
-          Return to Explore
+        <h2 className="text-3xl font-headline font-bold text-on-surface mb-4 italic">
+          {error ? 'Could Not Load Profile' : 'User Not Found'}
+        </h2>
+        <p className="text-on-surface-variant font-body leading-relaxed mb-8">
+          {error || 'This profile could not be located in our records.'}
+        </p>
+        <Link to="/activity" className="px-8 py-3 bg-primary text-on-primary rounded-full font-bold uppercase tracking-widest text-xs shadow-md hover:shadow-lg transition-shadow">
+          Back to Activity
         </Link>
      </div>
   );
