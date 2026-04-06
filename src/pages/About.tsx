@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BookOpen, Users, Repeat, Star, Heart, Target, Eye, Lightbulb, GraduationCap, Mail, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { apiGetStats } from '../lib/api';
 
 const STEPS = [
   {
@@ -41,31 +42,33 @@ const STEPS = [
 ];
 
 const STATS = [
-  { label: 'Books Shared', value: '500+', icon: BookOpen },
-  { label: 'Students Connected', value: '200+', icon: Users },
-  { label: 'Successful Exchanges', value: '150+', icon: Repeat },
+  { label: 'Books Shared', key: 'books' as const, icon: BookOpen },
+  { label: 'Students Connected', key: 'users' as const, icon: Users },
+  { label: 'Successful Exchanges', key: 'exchanges' as const, icon: Repeat },
 ];
 
 const TEAM = [
   {
-    name: 'Prince',
-    role: 'Developer & Co-Founder',
-    email: 'princee0391@gmail.com',
-    phone: '9813517107',
-    initial: 'P',
-    color: 'from-primary to-primary/60',
-  },
-  {
-    name: 'Kapil Kumar',
-    role: 'Operations & Co-Founder',
+    name: 'Kapil Delu',
+    role: 'Co-Founder',
     email: 'kumarkapil9216@gmail.com',
     phone: '8059707500',
     initial: 'K',
-    color: 'from-secondary to-secondary/60',
+    color: 'from-primary to-primary/60',
   },
 ];
 
 export default function About() {
+  const [stats, setStats] = useState<{ books: number; users: number; exchanges: number } | null>(null);
+
+  useEffect(() => {
+    apiGetStats().then(setStats).catch(() => {});
+  }, []);
+
+  function statValue(key: 'books' | 'users' | 'exchanges') {
+    if (!stats) return '...';
+    return stats[key];
+  }
   return (
     <div className="min-h-screen bg-surface pb-16">
 
@@ -100,7 +103,7 @@ export default function About() {
             {STATS.map((s) => (
               <div key={s.label} className="text-center p-6 bg-surface-container-low rounded-2xl border border-primary/10">
                 <s.icon className="w-6 h-6 text-primary mx-auto mb-3 opacity-60" />
-                <div className="font-headline font-extrabold text-3xl text-on-surface mb-1">{s.value}</div>
+                <div className="font-headline font-extrabold text-3xl text-on-surface mb-1">{statValue(s.key)}</div>
                 <div className="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">{s.label}</div>
               </div>
             ))}

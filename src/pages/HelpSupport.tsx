@@ -9,20 +9,12 @@ import { Link } from 'react-router-dom';
 
 const CONTACTS = [
   {
-    name: 'Prince (Developer)',
-    email: 'princee0391@gmail.com',
-    phone: '9813517107',
-    role: 'App Development & Technical Support',
-    color: 'from-primary/20 to-secondary/10',
-    border: 'border-primary/20',
-  },
-  {
-    name: 'Kapil Kumar',
+    name: 'Kapil Delu',
     email: 'kumarkapil9216@gmail.com',
     phone: '8059707500',
-    role: 'Operations & Community Support',
-    color: 'from-secondary/20 to-tertiary/10',
-    border: 'border-secondary/20',
+    role: 'Co-Founder — Operations & Community Support',
+    color: 'from-primary/20 to-secondary/10',
+    border: 'border-primary/20',
   },
 ];
 

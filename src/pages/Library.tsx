@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import BookCard from '../components/BookCard';
 import SectionHeader from '../components/SectionHeader';
-import { Library as LibraryIcon, BookOpen, Clock, CheckCircle2, BookmarkPlus, Compass } from 'lucide-react';
+import { Library as LibraryIcon, BookOpen, Clock, CheckCircle2, BookmarkPlus, Compass, Plus } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 import { apiGetUser, apiGetUserRequests } from '../lib/api';
@@ -13,7 +13,7 @@ const Library: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [ownedBooks, setOwnedBooks] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
-  
+
   const me = getCurrentUser();
 
   useEffect(() => {
@@ -39,71 +39,64 @@ const Library: React.FC = () => {
   const history = requests.filter(r => r.status === 'completed' || r.status === 'rejected');
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700">
+    <div className="space-y-6 animate-in fade-in duration-700 w-full">
       <SectionHeader
         title="Personal Archives"
         subtitle="Manage your cataloged volumes and track current academic exchanges."
       />
 
-      {/* Library Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-8 rounded-sm bg-surface-container-low border border-outline-variant flex items-center gap-6 shadow-sm">
-          <div className="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container border border-outline-variant shadow-inner">
-            <LibraryIcon size={28} strokeWidth={1.5} />
-          </div>
-          <div>
-            <p className="text-4xl font-headline font-bold text-on-surface">{ownedBooks.length}</p>
-            <p className="text-xs text-on-surface-variant uppercase font-bold tracking-widest mt-1">Volumes Curated</p>
-          </div>
-        </div>
-        <div className="p-8 rounded-sm bg-surface-container-low border border-outline-variant flex items-center gap-6 shadow-sm">
-          <div className="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container border border-outline-variant shadow-inner">
-            <BookOpen size={28} strokeWidth={1.5} />
-          </div>
-          <div>
-            <p className="text-4xl font-headline font-bold text-on-surface">{activeBorrows.length}</p>
-            <p className="text-xs text-on-surface-variant uppercase font-bold tracking-widest mt-1">Active Holds</p>
-          </div>
-        </div>
-        <div className="p-8 rounded-sm bg-surface-container-low border border-outline-variant flex items-center gap-6 shadow-sm">
-          <div className="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant border border-outline-variant shadow-inner">
-            <CheckCircle2 size={28} strokeWidth={1.5} />
-          </div>
-          <div>
-            <p className="text-4xl font-headline font-bold text-on-surface">{history.length}</p>
-            <p className="text-xs text-on-surface-variant uppercase font-bold tracking-widest mt-1">Past Exchanges</p>
-          </div>
-        </div>
+      {/* Library Stats — stacked on mobile, row on desktop */}
+      <div className="grid grid-cols-3 gap-3 md:gap-6">
+        <StatCard
+          icon={<LibraryIcon size={22} strokeWidth={1.5} />}
+          value={ownedBooks.length}
+          label="Volumes Curated"
+          color="bg-primary-container text-on-primary-container"
+        />
+        <StatCard
+          icon={<BookOpen size={22} strokeWidth={1.5} />}
+          value={activeBorrows.length}
+          label="Active Holds"
+          color="bg-secondary-container text-on-secondary-container"
+        />
+        <StatCard
+          icon={<CheckCircle2 size={22} strokeWidth={1.5} />}
+          value={history.length}
+          label="Past Exchanges"
+          color="bg-surface-container-high text-on-surface-variant"
+        />
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-4 p-1.5 bg-surface-container-low rounded-sm border border-outline-variant/50 w-fit shadow-inner overflow-x-auto no-scrollbar">
-        <TabButton
-          active={activeTab === 'owned'}
-          onClick={() => setActiveTab('owned')}
-          icon={<LibraryIcon size={16} />}
-          label="My Collection"
-        />
-        <TabButton
-          active={activeTab === 'borrowed'}
-          onClick={() => setActiveTab('borrowed')}
-          icon={<BookOpen size={16} />}
-          label="Active Holds"
-        />
-        <TabButton
-          active={activeTab === 'history'}
-          onClick={() => setActiveTab('history')}
-          icon={<Clock size={16} />}
-          label="Ledger History"
-        />
+      {/* Tabs — full width, scrollable */}
+      <div className="w-full overflow-x-auto no-scrollbar">
+        <div className="flex gap-1 p-1.5 bg-surface-container-low rounded-xl border border-outline-variant/50 w-full min-w-0">
+          <TabButton
+            active={activeTab === 'owned'}
+            onClick={() => setActiveTab('owned')}
+            icon={<LibraryIcon size={14} />}
+            label="My Collection"
+          />
+          <TabButton
+            active={activeTab === 'borrowed'}
+            onClick={() => setActiveTab('borrowed')}
+            icon={<BookOpen size={14} />}
+            label="Active Holds"
+          />
+          <TabButton
+            active={activeTab === 'history'}
+            onClick={() => setActiveTab('history')}
+            icon={<Clock size={14} />}
+            label="Ledger History"
+          />
+        </div>
       </div>
 
       {/* Tab Content */}
-      <div className="min-h-[40vh]">
+      <div className="min-h-[40vh] w-full">
         {loading ? (
           <div className="h-full flex flex-col justify-center items-center py-16 text-on-surface-variant">
-             <Compass size={40} className="animate-spin mb-4 opacity-20" />
-             <p className="font-headline italic text-lg tracking-wide">Accessing archives...</p>
+            <Compass size={40} className="animate-spin mb-4 opacity-20" />
+            <p className="font-headline italic text-lg tracking-wide">Accessing archives...</p>
           </div>
         ) : (
           <>
@@ -111,28 +104,29 @@ const Library: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="space-y-8"
+                className="space-y-5 w-full"
               >
-                <div className="flex items-center justify-between border-b-2 border-outline-variant/30 pb-4">
-                  <h3 className="font-headline font-bold text-2xl text-on-surface">Your Curated Collection</h3>
+                {/* Header row */}
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-outline-variant/30 pb-4">
+                  <h3 className="font-headline font-bold text-lg sm:text-2xl text-on-surface">Your Curated Collection</h3>
                   <Link
                     to="/add"
-                    className="flex items-center gap-2 px-6 py-2.5 bg-primary text-on-primary rounded-sm text-xs uppercase tracking-widest font-bold hover:bg-primary/90 transition-all shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-primary text-on-primary rounded-xl text-xs uppercase tracking-widest font-bold hover:bg-primary/90 transition-all shadow-sm"
                   >
-                    <BookmarkPlus size={16} />
+                    <Plus size={14} />
                     Catalog Volume
                   </Link>
                 </div>
 
                 {ownedBooks.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-10">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                     {ownedBooks.map((book) => (
                       <BookCard key={book.id} book={book} />
                     ))}
                   </div>
                 ) : (
                   <EmptyState
-                    icon={<BookmarkPlus size={48} />}
+                    icon={<BookmarkPlus size={40} />}
                     title="No volumes cataloged"
                     description="You haven't added any texts to your personal reserve yet."
                     actionText="Catalog First Volume"
@@ -146,28 +140,28 @@ const Library: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="space-y-8"
+                className="space-y-5 w-full"
               >
                 <div className="border-b-2 border-outline-variant/30 pb-4">
-                  <h3 className="font-headline font-bold text-2xl text-on-surface">Currently Retained</h3>
+                  <h3 className="font-headline font-bold text-lg sm:text-2xl text-on-surface">Currently Retained</h3>
                 </div>
                 {activeBorrows.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-10">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                     {activeBorrows.map((req) => (
-                      <div key={req.id} className="relative group flex flex-col bg-surface-container-low rounded-sm overflow-hidden border border-outline-variant/50 hover:border-primary/50 transition-colors">
+                      <div key={req.id} className="relative group flex flex-col bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/50 hover:border-primary/50 transition-colors">
                         <div className="aspect-[3/4] overflow-hidden">
-                           <img src={req.image} alt={req.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          <img src={req.image} alt={req.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         </div>
-                        <div className="p-4">
-                           <h4 className="font-headline font-bold text-on-surface line-clamp-1">{req.title}</h4>
-                           <p className="text-xs text-on-surface-variant italic mt-1">From: {req.user}</p>
+                        <div className="p-3">
+                          <h4 className="font-headline font-bold text-on-surface line-clamp-1 text-sm">{req.title}</h4>
+                          <p className="text-xs text-on-surface-variant italic mt-1">From: {req.user}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <EmptyState
-                    icon={<BookOpen size={48} />}
+                    icon={<BookOpen size={40} />}
                     title="No active holds"
                     description="You are not currently retaining any volumes from your peers."
                     actionText="Explore Archives"
@@ -181,32 +175,64 @@ const Library: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="space-y-8"
+                className="space-y-5 w-full"
               >
                 <div className="border-b-2 border-outline-variant/30 pb-4">
-                  <h3 className="font-headline font-bold text-2xl text-on-surface">Exchange Ledger History</h3>
+                  <h3 className="font-headline font-bold text-lg sm:text-2xl text-on-surface">Exchange Ledger History</h3>
                 </div>
                 {history.length > 0 ? (
-                 <div className="bg-surface-container-lowest rounded-sm border border-outline-variant shadow-sm overflow-hidden">
-                  <table className="w-full text-left">
-                    <thead className="bg-surface-container-low text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant">
-                      <tr>
-                        <th className="px-6 py-4">Title Documented</th>
-                        <th className="px-6 py-4">Nature</th>
-                        <th className="px-6 py-4">Counterparty</th>
-                        <th className="px-6 py-4 text-right">Outcome</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-outline-variant/30">
+                  /* Mobile: card view, Desktop: table */
+                  <>
+                    {/* Mobile card view */}
+                    <div className="flex flex-col gap-3 md:hidden">
                       {history.map((req) => (
-                         <HistoryRow key={req.id} book={req.title} action={req.isOutgoing ? 'Borrowing' : 'Lending'} partner={req.user} status={req.status} />
+                        <div key={req.id} className="bg-surface-container-low rounded-xl border border-outline-variant/50 p-4 flex gap-4">
+                          <img src={req.image} alt={req.title} className="w-14 h-20 object-cover rounded-lg shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-headline font-bold text-on-surface text-sm line-clamp-2">{req.title}</p>
+                            <p className="text-xs text-on-surface-variant mt-1 italic">With: {req.user}</p>
+                            <div className="flex items-center gap-2 mt-2 flex-wrap">
+                              <span className={cn(
+                                "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border",
+                                req.isOutgoing ? "bg-primary-container text-on-primary-container border-primary/20" : "bg-secondary-container text-on-secondary-container border-secondary/20"
+                              )}>
+                                {req.isOutgoing ? 'Borrowed' : 'Lent'}
+                              </span>
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-tertiary">{req.status}</span>
+                            </div>
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                 </div>
+                    </div>
+
+                    {/* Desktop table */}
+                    <div className="hidden md:block bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+                      <table className="w-full text-left">
+                        <thead className="bg-surface-container-low text-[10px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant">
+                          <tr>
+                            <th className="px-6 py-4">Title</th>
+                            <th className="px-6 py-4">Nature</th>
+                            <th className="px-6 py-4">Partner</th>
+                            <th className="px-6 py-4 text-right">Outcome</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-outline-variant/30">
+                          {history.map((req) => (
+                            <HistoryRow
+                              key={req.id}
+                              book={req.title}
+                              action={req.isOutgoing ? 'Borrowing' : 'Lending'}
+                              partner={req.user}
+                              status={req.status}
+                            />
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
                 ) : (
                   <EmptyState
-                    icon={<Clock size={48} />}
+                    icon={<Clock size={40} />}
                     title="Blank Ledger"
                     description="Your historical records of exchanges are currently empty."
                     actionText="Explore Archives"
@@ -222,6 +248,20 @@ const Library: React.FC = () => {
   );
 };
 
+function StatCard({ icon, value, label, color }: { icon: React.ReactNode; value: number; label: string; color: string }) {
+  return (
+    <div className="p-4 md:p-8 rounded-xl md:rounded-sm bg-surface-container-low border border-outline-variant flex flex-col md:flex-row items-center md:items-center gap-2 md:gap-6 shadow-sm text-center md:text-left">
+      <div className={cn("w-10 h-10 md:w-16 md:h-16 rounded-full flex items-center justify-center border border-outline-variant shadow-inner shrink-0", color)}>
+        {icon}
+      </div>
+      <div>
+        <p className="text-2xl md:text-4xl font-headline font-bold text-on-surface leading-none">{value}</p>
+        <p className="text-[9px] md:text-xs text-on-surface-variant uppercase font-bold tracking-widest mt-1">{label}</p>
+      </div>
+    </div>
+  );
+}
+
 interface TabButtonProps {
   active: boolean;
   onClick: () => void;
@@ -234,14 +274,14 @@ const TabButton: React.FC<TabButtonProps> = ({ active, onClick, icon, label }) =
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center justify-center gap-2 px-8 py-3 rounded-sm text-xs font-bold uppercase tracking-widest transition-all duration-300 whitespace-nowrap",
+        "flex flex-1 items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all duration-300 whitespace-nowrap min-w-0",
         active
-          ? "bg-surface text-primary shadow-[inset_0_0_0_1px_rgba(92,64,51,0.2)]"
-          : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border border-transparent"
+          ? "bg-surface text-primary shadow-sm border border-outline-variant/50"
+          : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high"
       )}
     >
       {icon}
-      {label}
+      <span className="hidden xs:inline sm:inline">{label}</span>
     </button>
   );
 };
@@ -256,17 +296,17 @@ interface EmptyStateProps {
 
 const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, description, actionText, actionTo }) => {
   return (
-    <div className="py-24 flex flex-col items-center justify-center text-center">
-      <div className="w-24 h-24 bg-surface-container rounded-full flex items-center justify-center mb-6 text-on-surface-variant/30 border border-outline-variant">
+    <div className="py-16 flex flex-col items-center justify-center text-center px-4">
+      <div className="w-20 h-20 bg-surface-container rounded-full flex items-center justify-center mb-5 text-on-surface-variant/30 border border-outline-variant">
         {icon}
       </div>
-      <h3 className="text-2xl font-headline font-bold text-on-surface italic">{title}</h3>
-      <p className="text-on-surface-variant mt-3 max-w-sm font-body">
+      <h3 className="text-xl font-headline font-bold text-on-surface italic">{title}</h3>
+      <p className="text-on-surface-variant mt-2 max-w-xs font-body text-sm leading-relaxed">
         {description}
       </p>
       <Link
         to={actionTo}
-        className="mt-8 px-8 py-3 bg-primary text-on-primary rounded-sm text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-all shadow-md"
+        className="mt-6 px-8 py-3 bg-primary text-on-primary rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-all shadow-md"
       >
         {actionText}
       </Link>
@@ -285,7 +325,7 @@ const HistoryRow: React.FC<HistoryRowProps> = ({ book, action, partner, status }
   return (
     <tr className="hover:bg-surface transition-colors group">
       <td className="px-6 py-5">
-        <span className="font-bold font-headline text-lg text-on-surface group-hover:text-primary transition-colors">{book}</span>
+        <span className="font-bold font-headline text-on-surface group-hover:text-primary transition-colors">{book}</span>
       </td>
       <td className="px-6 py-5">
         <span className={cn(
