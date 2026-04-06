@@ -3,7 +3,10 @@ import { getToken, clearToken, type StoredUser } from './auth';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 // When server rejects our token (expired/invalid), log user out cleanly
+// Only acts if a token was actually stored — prevents false PWA logouts
 function handleUnauthorized() {
+  const hadToken = !!localStorage.getItem('campus_book_exchange_token');
+  if (!hadToken) return; // No token = guest request failed, not our auth issue
   clearToken();
   // Redirect to login only if not already there
   if (window.location.pathname !== '/login') {

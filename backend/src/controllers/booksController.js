@@ -233,12 +233,13 @@ const getGlobalActivity = asyncHandler(async (req, res) => {
   const books = await prisma.book.findMany({
     take: 10,
     orderBy: { createdAt: 'desc' },
-    include: { owner: { select: { name: true, avatarUrl: true } } }
+    include: { owner: { select: { id: true, name: true, avatarUrl: true } } }
   });
 
   const activities = books.map(b => ({
     id: `add_book_${b.id}`,
     type: 'add',
+    userId: b.owner?.id || null,
     userName: b.owner?.name || 'Unknown',
     userAvatar: b.owner?.avatarUrl || '',
     bookTitle: b.title,
@@ -248,12 +249,13 @@ const getGlobalActivity = asyncHandler(async (req, res) => {
   const requests = await prisma.request.findMany({
     take: 10,
     orderBy: { createdAt: 'desc' },
-    include: { borrower: { select: { name: true, avatarUrl: true } }, book: { select: { title: true } } }
+    include: { borrower: { select: { id: true, name: true, avatarUrl: true } }, book: { select: { title: true } } }
   });
 
   const reqActivities = requests.map(r => ({
     id: `req_${r.id}`,
     type: r.status === 'completed' ? 'return' : 'borrow',
+    userId: r.borrower?.id || null,
     userName: r.borrower?.name || 'Unknown',
     userAvatar: r.borrower?.avatarUrl || '',
     bookTitle: r.book?.title || 'Unknown Book',
