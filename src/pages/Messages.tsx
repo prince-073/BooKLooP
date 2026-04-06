@@ -223,9 +223,7 @@ export function Messages() {
   const isActiveBlocked = active ? blockedUsers.some((u) => u.id === active.userId) : false;
 
   return (
-    <div className="flex min-h-0 rounded-2xl overflow-hidden border border-primary/10 bg-surface shadow-sm"
-      style={{ height: 'calc(100dvh - 8rem)' }}
-    >
+    <div className="flex h-full min-h-0 rounded-2xl overflow-hidden border border-primary/10 bg-surface shadow-sm">
 
       {/* ─── Sidebar / Conversations List ─── */}
       <div className={cn(

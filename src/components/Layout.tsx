@@ -1,18 +1,32 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Home, Search, Library, Bell, User, PlusCircle, Heart, MessageSquare, HelpCircle, Info } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { OnboardingTour } from './OnboardingTour';
 
 const Layout: React.FC = () => {
+  const location = useLocation();
+  // Messages page gets a full-height, no-padding layout
+  const isMessages = location.pathname === '/messages';
+
   return (
     <div className="min-h-screen bg-surface flex flex-col paper-grain text-on-surface">
       <OnboardingTour />
       {/* Main Content Area */}
-      <main className="flex-1 pb-24 md:pb-0 md:pl-28 lg:pl-72 pt-4">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 py-8">
-          <Outlet />
-        </div>
+      <main className={cn(
+        "flex-1 md:pl-28 lg:pl-72",
+        isMessages ? "pb-16 md:pb-0 flex flex-col min-h-0" : "pb-24 md:pb-0 pt-4"
+      )}>
+        {isMessages ? (
+          // Chat: full height, no inner padding container
+          <div className="flex flex-col h-full" style={{ height: 'calc(100dvh - 4rem)', padding: '0.75rem' }}>
+            <Outlet />
+          </div>
+        ) : (
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 py-8">
+            <Outlet />
+          </div>
+        )}
       </main>
 
       {/* Navigation - Mobile Bottom / Desktop Sidebar */}

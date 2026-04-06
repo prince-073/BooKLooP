@@ -12,7 +12,7 @@ const env = {
   PORT: Number(process.env.PORT || 5000),
   DATABASE_URL: process.env.DATABASE_URL || 'file:./dev.db',
   JWT_SECRET: process.env.JWT_SECRET || 'dev_secret_change_me',
-  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
+  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '30d',
   UNIVERSITY_EMAIL_DOMAINS: parseDomains(process.env.UNIVERSITY_EMAIL_DOMAINS || ''),
   CORS_ORIGIN: process.env.CORS_ORIGIN || '*',
   BCRYPT_SALT_ROUNDS: Number(process.env.BCRYPT_SALT_ROUNDS || 10),

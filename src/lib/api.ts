@@ -1,6 +1,15 @@
-import { getToken, type StoredUser } from './auth';
+import { getToken, clearToken, type StoredUser } from './auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
+// When server rejects our token (expired/invalid), log user out cleanly
+function handleUnauthorized() {
+  clearToken();
+  // Redirect to login only if not already there
+  if (window.location.pathname !== '/login') {
+    window.location.replace('/login');
+  }
+}
 
 export async function apiGetBooks(params?: {
   search?: string;
@@ -45,6 +54,8 @@ async function apiPost(path: string, body: any, token?: string) {
   });
 
   if (!res.ok) {
+    // Token expired or invalid — auto logout
+    if (res.status === 401) handleUnauthorized();
     const text = await res.text().catch(() => '');
     let msg = `Request failed: ${res.status}`;
     try {

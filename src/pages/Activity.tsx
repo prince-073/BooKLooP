@@ -5,6 +5,7 @@ import { Bell, BookOpen, CheckCircle2, BookmarkPlus, Compass } from 'lucide-reac
 import { cn } from '../lib/utils';
 import { apiGetGlobalActivity } from '../lib/api';
 import { getAvatarUrl } from '../lib/media';
+import { Link } from 'react-router-dom';
 
 const Activity: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'borrow' | 'return' | 'add'>('all');
@@ -79,16 +80,19 @@ const Activity: React.FC = () => {
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                   className="group flex flex-col sm:flex-row items-start sm:items-center gap-6 p-6 bg-surface-container-lowest rounded-sm border border-outline-variant hover:border-primary/50 transition-all duration-300 shadow-sm"
                 >
-                  {/* User Avatar */}
+                  {/* User Avatar — clickable to profile */}
                   <div className="relative flex-shrink-0">
-                    <div className="w-16 h-16 rounded-full overflow-hidden border border-outline shadow-inner transition-transform duration-500 group-hover:scale-105">
+                    <Link
+                      to={activity.userId ? `/user/${activity.userId}` : '#'}
+                      className="block w-16 h-16 rounded-full overflow-hidden border border-outline shadow-inner transition-all duration-300 group-hover:scale-105 hover:ring-2 hover:ring-primary/40"
+                    >
                       <img
                         src={getAvatarUrl({ name: activity.userName, avatarUrl: activity.userAvatar })}
                         alt={activity.userName}
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                       />
-                    </div>
+                    </Link>
                     {/* Activity Icon Badge */}
                     <div className={cn(
                       "absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center shadow-md border-2 border-surface-container-lowest",
@@ -105,9 +109,12 @@ const Activity: React.FC = () => {
                   {/* Activity Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
-                      <h4 className="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">
+                      <Link
+                        to={activity.userId ? `/user/${activity.userId}` : '#'}
+                        className="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors hover:underline underline-offset-2"
+                      >
                         {activity.userName}
-                      </h4>
+                      </Link>
                       <span className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mt-1 sm:mt-0 opacity-70">
                          {new Date(activity.timestamp).toLocaleString(undefined, {
                            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
