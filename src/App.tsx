@@ -16,6 +16,7 @@ import SavedBooks from './pages/SavedBooks';
 import { Messages } from './pages/Messages';
 import HelpSupport from './pages/HelpSupport';
 import About from './pages/About';
+import AdminDashboard from './pages/AdminDashboard';
 import { Toaster } from 'react-hot-toast';
 import { getToken } from './lib/auth';
 
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="add" element={<AddBook />} />
           <Route path="help" element={<HelpSupport />} />
           <Route path="about" element={<About />} />
+          <Route path="admin" element={<AdminDashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>

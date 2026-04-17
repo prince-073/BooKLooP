@@ -9,6 +9,7 @@ import {
   MessageSquare,
   User,
   Settings,
+  Shield,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getCurrentUser } from '../lib/auth';
@@ -99,6 +100,22 @@ export function Sidebar() {
             <span className="text-sm font-medium">{item.label}</span>
           </NavLink>
         ))}
+
+        {currentUser?.role === 'Admin' && (
+          <NavLink
+            to="/admin"
+            onClick={closeMobile}
+            className={({ isActive }) =>
+              cn(
+                'flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-all duration-200 hover:bg-primary/5 rounded-lg border border-primary/10 mt-2 bg-primary/5 group',
+                isActive && 'text-primary bg-primary/10 border-primary/30'
+              )
+            }
+          >
+            <Shield className="w-5 h-5 shrink-0 text-primary group-hover:drop-shadow-sm transition-all" />
+            <span className="text-sm font-bold text-primary">Admin Panel</span>
+          </NavLink>
+        )}
 
         <div className="mt-4 p-4 bg-surface-container-lowest rounded-xl border border-primary/10">
           <div className="flex items-center gap-3 min-w-0">

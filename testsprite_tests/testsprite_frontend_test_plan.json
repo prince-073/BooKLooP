@@ -1,0 +1,625 @@
+[
+  {
+    "id": "TC001",
+    "title": "Guest can authenticate via OTP and reach the activity dashboard",
+    "description": "Verifies a guest can request an OTP, submit a valid OTP, and land on the authenticated dashboard showing the activity log.",
+    "category": "User Login (Passwordless OTP)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid OTP code into the OTP code field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user lands on the activity dashboard with an activity list displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Logged-out user is redirected to login when trying to access auth-only routes",
+    "description": "Verifies that visiting protected routes while logged out redirects the user to the login page.",
+    "category": "User Login (Passwordless OTP)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is redirected to the login page"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is redirected to the login page"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /requests"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is redirected to the login page"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /chat"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is redirected to the login page"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Accept a book request and see it marked accepted",
+    "description": "This test verifies a member can accept an incoming book request from the requests list and the UI reflects the accepted status.",
+    "category": "Book Requests",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the identifier field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid OTP code into the OTP field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP verification"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to open requests"
+      },
+      {
+        "type": "action",
+        "description": "Select an incoming request from the list"
+      },
+      {
+        "type": "action",
+        "description": "Accept the selected request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected request shows an accepted status"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "User can open the activity log and navigate to a profile from an activity item",
+    "description": "Verifies an authenticated user can view activities and open a user profile by selecting a user name from an activity.",
+    "category": "Activity Log",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid OTP code into the OTP code field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Select a user's name from an activity item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the profile page is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Authenticated session persists across page refresh on the dashboard",
+    "description": "Verifies that after successful OTP login, a browser refresh keeps the user authenticated and on the activity dashboard.",
+    "category": "User Login (Passwordless OTP)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid OTP code into the OTP code field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Press Control+R to refresh the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user remains on the activity dashboard with an activity list displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Decline a book request and see it marked declined",
+    "description": "This test verifies a member can decline an incoming book request from the requests list and the UI reflects the declined status.",
+    "category": "Book Requests",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the identifier field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid OTP code into the OTP field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP verification"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to open requests"
+      },
+      {
+        "type": "action",
+        "description": "Select an incoming request from the list"
+      },
+      {
+        "type": "action",
+        "description": "Decline the selected request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected request shows a declined status"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Profile page shows user details",
+    "description": "Verifies an authenticated user can navigate to the profile page and see profile details rendered.",
+    "category": "User Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid OTP code into the OTP code field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation control to open the profile page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify profile details are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC008",
+    "title": "Send a chat message and see it appended",
+    "description": "This test verifies a member can send a message in chat and the new message appears in the chat history.",
+    "category": "Chat Interface",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the identifier field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid OTP code into the OTP field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP verification"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to open chat"
+      },
+      {
+        "type": "action",
+        "description": "Fill Chat message from automated test into the message input field"
+      },
+      {
+        "type": "action",
+        "description": "Send the message"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new message appears appended in the chat history"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC009",
+    "title": "Requests list is visible on the requests page",
+    "description": "This test verifies a signed-in member can open the requests page and see the requests list or an appropriate empty state.",
+    "category": "Book Requests",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the identifier field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid OTP code into the OTP field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP verification"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to open requests"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the requests list is displayed or an empty state is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC010",
+    "title": "Sent chat message remains visible after leaving and returning",
+    "description": "This test verifies a member’s sent message remains visible after navigating away from chat and returning to chat.",
+    "category": "Chat Interface",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the identifier field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid OTP code into the OTP field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP verification"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to open chat"
+      },
+      {
+        "type": "action",
+        "description": "Fill Persisted chat message into the message input field"
+      },
+      {
+        "type": "action",
+        "description": "Send the message"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to open requests"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to open chat"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the previously sent message is visible in the chat history"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC011",
+    "title": "Chat history is visible on the chat page",
+    "description": "This test verifies a signed-in member can open chat and see existing messages or an appropriate empty state.",
+    "category": "Chat Interface",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the identifier field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid OTP code into the OTP field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP verification"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to open chat"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify chat history is displayed or an empty state is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC012",
+    "title": "Install prompt can be initiated in a PWA-capable browser",
+    "description": "This test verifies a user can initiate installing the app when the browser supports PWA installation and the UI shows an install flow entry point.",
+    "category": "Progressive Web App (PWA) Install",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the identifier field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid OTP code into the OTP field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP verification"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Wait for the app shell to finish loading"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an option to install the app is available or the app indicates installation is already available through the browser"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC013",
+    "title": "Guest sees validation when submitting an invalid OTP code",
+    "description": "Verifies submitting an invalid OTP code shows an invalid credentials error and does not log the user in.",
+    "category": "User Login (Passwordless OTP)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill an invalid OTP code into the OTP code field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an invalid OTP error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user remains on the login page"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC014",
+    "title": "Accept action is not duplicated on rapid repeat interaction",
+    "description": "This test verifies rapidly triggering accept for the same request does not create duplicate UI entries and results in a single accepted outcome.",
+    "category": "Book Requests",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the identifier field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid OTP code into the OTP field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP verification"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to open requests"
+      },
+      {
+        "type": "action",
+        "description": "Select an incoming request from the list"
+      },
+      {
+        "type": "action",
+        "description": "Accept the selected request"
+      },
+      {
+        "type": "action",
+        "description": "Press Enter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected request shows an accepted status"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC015",
+    "title": "Send action is not duplicated on rapid repeat interaction",
+    "description": "This test verifies rapidly triggering send does not append duplicate messages for a single intended send action.",
+    "category": "Chat Interface",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill {{LOGIN_USER}} into the identifier field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP request"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid OTP code into the OTP field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the OTP verification"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation link to open chat"
+      },
+      {
+        "type": "action",
+        "description": "Fill Rapid send message into the message input field"
+      },
+      {
+        "type": "action",
+        "description": "Send the message"
+      },
+      {
+        "type": "action",
+        "description": "Press Enter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify only one new instance of the message appears in the chat history"
+      }
+    ],
+    "priority": "Low"
+  }
+]

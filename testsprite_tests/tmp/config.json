@@ -1,0 +1,20 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "loginUser": "test@test.com",
+  "loginPassword": "123456",
+  "executionArgs": {
+    "projectName": "library",
+    "projectPath": "C:\\Users\\PRINCE\\OneDrive\\Desktop\\library",
+    "testIds": [],
+    "additionalInstruction": "Please use test@test.com and password 123456 as the login credentials.",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-6w923PJfCVAYZlva918npMA4XzBVdNLwtolpGue6MLX5WGfBQuFat2VSI3hlK6LpVfzT9t4iaxN793dzy3LilSuhypNjsPbFp4xBu6axlVkVW0hVzTCmN542HB3qBtv4a7Q"
+    }
+  },
+  "serverPort": 60762,
+  "proxy": "http://fbde6d2d-277a-48bf-80f2-230b6dfedfdf:6UxpSXSunMufx4HGB7dieUnnyBdfNm4r@tun.testsprite.com:8080"
+}

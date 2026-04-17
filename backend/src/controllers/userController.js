@@ -2,6 +2,34 @@ const { prisma } = require('../config/prisma');
 const { ApiError } = require('../utils/ApiError');
 const { asyncHandler } = require('../utils/asyncHandler');
 
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await prisma.user.findMany({
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      course: true,
+      year: true,
+      role: true,
+      phone: true,
+      phoneVisible: true,
+      avatarUrl: true,
+      createdAt: true,
+      _count: {
+        select: {
+          booksListed: true,
+          booksBorrowed: true,
+          requestsAsBorrower: true,
+          requestsAsOwner: true
+        }
+      }
+    }
+  });
+
+  res.json(users);
+});
+
 const getUserById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const user = await prisma.user.findUnique({
@@ -93,4 +121,4 @@ const getMyVisitors = asyncHandler(async (req, res) => {
   res.json(visits);
 });
 
-module.exports = { getUserById, recordVisit, getMyVisitors };
+module.exports = { getAllUsers, getUserById, recordVisit, getMyVisitors };

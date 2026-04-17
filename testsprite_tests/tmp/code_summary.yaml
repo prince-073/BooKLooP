@@ -1,0 +1,78 @@
+version: "2"
+type: frontend
+tech_stack:
+  - React (Vite)
+  - TailwindCSS
+  - lucide-react
+  - framer-motion
+routes:
+  - path: /login
+    file: src/pages/OtpLogin.tsx
+    auth_required: false
+    description: User OTP login page
+  - path: /
+    file: src/App.tsx
+    auth_required: true
+    description: Main dashboard / Activity log
+  - path: /profile
+    file: src/pages/Profile.tsx
+    auth_required: true
+    description: User Profile page
+  - path: /chat
+    file: src/pages/Chat.tsx
+    auth_required: true
+    description: Chat Interface
+  - path: /requests
+    file: src/pages/Requests.tsx
+    auth_required: true
+    description: Library requests / Book exchange
+features:
+  - name: User Login
+    description: Passwordless login with email and OTP code
+    files:
+      - src/pages/OtpLogin.tsx
+    entry_route: /login
+    user_interactions:
+      - Fill email input field
+      - Click Request OTP
+      - Fill OTP code input field
+      - Click Login button to submit
+      - See error message on invalid credentials
+    api_calls:
+      - method: POST
+        endpoint: /api/auth/request-otp
+      - method: POST
+        endpoint: /api/auth/verify-otp
+    auth_required: false
+  - name: Activity Log
+    description: View recent activities and navigate to user profiles
+    files:
+      - src/App.tsx
+    entry_route: /
+    user_interactions:
+      - View list of activities
+      - Click on a user's name to view their profile (requires auth)
+    api_calls: []
+    auth_required: true
+  - name: Book Requests
+    description: Manage incoming and outgoing library book requests
+    files:
+      - src/pages/Requests.tsx
+    entry_route: /requests
+    user_interactions:
+      - View requests list
+      - Accept or decline requests
+    api_calls: []
+    auth_required: true
+  - name: Chat Interface
+    description: Communicate with other users
+    files:
+      - src/pages/Chat.tsx
+    entry_route: /chat
+    user_interactions:
+      - View chat history
+      - Type message in input field
+      - Click send button
+    api_calls: []
+    auth_required: true
+known_limitations: []

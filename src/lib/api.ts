@@ -170,6 +170,28 @@ export async function apiGetUser(id: string) {
   return await res.json();
 }
 
+export async function apiGetAllUsers() {
+  const token = getToken();
+  if (!token) throw new Error('Please login first');
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`
+  };
+
+  const res = await fetch(`${API_BASE_URL}/api/users/all`, { headers });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    let msg = `Request failed: ${res.status}`;
+    try {
+      const j = JSON.parse(text);
+      if (j?.error?.message) msg = j.error.message;
+    } catch {
+      if (text) msg += ` ${text}`;
+    }
+    throw new Error(msg);
+  }
+  return await res.json();
+}
+
 export async function apiRecordVisit(id: string) {
   const token = getToken();
   if (!token) return; 
