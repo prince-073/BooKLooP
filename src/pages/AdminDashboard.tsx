@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiGetAllUsers } from '../lib/api';
-import { Shield, Loader, Search, ExternalLink, Calendar, BookOpen, Clock, Activity, Send } from 'lucide-react';
+import { apiGetAllUsers, apiDeleteUser } from '../lib/api';
+import { Shield, Loader, Search, ExternalLink, Calendar, BookOpen, Clock, Activity, Send, Trash2 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { getCurrentUser } from '../lib/auth';
+import { getAvatarUrl } from '../lib/media';
+import { cn } from '../lib/utils';
+import toast from 'react-hot-toast';
 import { getAvatarUrl } from '../lib/media';
 import { cn } from '../lib/utils';
 
@@ -53,6 +56,31 @@ export default function AdminDashboard() {
 
     fetchUsers();
   }, [navigate]);
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    const code = window.prompt(`Enter the admin pin to delete user ${userName}:`);
+    if (!code) return; // User cancelled or entered blank
+    
+    // Check local simple valid code but mostly backend validates it
+    if (code !== '2929') {
+      toast.error('Invalid admin pin');
+      return;
+    }
+
+    try {
+      if (!window.confirm(`Are you absolutely sure you want to delete ${userName}? This action cannot be undone and will delete all their data.`)) {
+        return;
+      }
+      const loadingToast = toast.loading('Deleting user...');
+      await apiDeleteUser(userId, code);
+      toast.dismiss(loadingToast);
+      toast.success('User deleted successfully');
+      setUsers(users.filter(u => u.id !== userId));
+    } catch (err: any) {
+      toast.dismiss();
+      toast.error(err.message || 'Failed to delete user');
+    }
+  };
 
   if (loading) {
     return (
@@ -180,13 +208,22 @@ export default function AdminDashboard() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button 
-                      onClick={() => navigate(`/user/${user.id}`)}
-                      className="inline-flex items-center justify-center p-2 rounded-xl text-primary hover:bg-primary/10 transition-colors"
-                      title="View Profile"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </button>
+                    <div className="flex gap-2 justify-end">
+                      <button 
+                        onClick={() => navigate(`/user/${user.id}`)}
+                        className="inline-flex items-center justify-center p-2 rounded-xl text-primary hover:bg-primary/10 transition-colors"
+                        title="View Profile"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteUser(user.id, user.name)}
+                        className="inline-flex items-center justify-center p-2 rounded-xl text-error hover:bg-error/10 transition-colors"
+                        title="Delete User"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

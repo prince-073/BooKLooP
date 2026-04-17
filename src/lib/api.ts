@@ -616,3 +616,27 @@ export async function apiNudgeReturn(requestId: string) {
   const token = getToken();
   return apiPost(`/api/requests/${requestId}/nudge`, undefined, token);
 }
+
+export async function apiDeleteUser(userId: string, code: string) {
+  const token = getToken();
+  if (!token) throw new Error('Please login first');
+  const res = await fetch(`${API_BASE_URL}/api/users/${userId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ code })
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    let msg = `Request failed: ${res.status}`;
+    try {
+      const j = JSON.parse(text);
+      if (j?.error?.message) msg = j.error.message;
+    } catch {
+      if (text) msg += ` ${text}`;
+    }
+    throw new Error(msg);
+  }
+}

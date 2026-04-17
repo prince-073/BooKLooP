@@ -121,4 +121,24 @@ const getMyVisitors = asyncHandler(async (req, res) => {
   res.json(visits);
 });
 
-module.exports = { getAllUsers, getUserById, recordVisit, getMyVisitors };
+const deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { code } = req.body;
+
+  if (code !== '2929') {
+    throw new ApiError(403, 'Invalid admin code');
+  }
+
+  // Admin cannot delete themselves (optional guard)
+  if (id === req.user.id) {
+    throw new ApiError(400, 'You cannot delete your own admin account');
+  }
+
+  await prisma.user.delete({
+    where: { id }
+  });
+
+  res.status(200).json({ success: true, message: 'User deleted successfully' });
+});
+
+module.exports = { getAllUsers, getUserById, recordVisit, getMyVisitors, deleteUser };
