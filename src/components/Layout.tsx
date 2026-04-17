@@ -1,13 +1,16 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Home, Search, Library, Bell, User, PlusCircle, Heart, MessageSquare, HelpCircle, Info } from 'lucide-react';
+import { Home, Search, Library, Bell, User, PlusCircle, Heart, MessageSquare, HelpCircle, Info, Shield } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { OnboardingTour } from './OnboardingTour';
+import { getCurrentUser } from '../lib/auth';
 
 const Layout: React.FC = () => {
   const location = useLocation();
   // Messages page gets a full-height, no-padding layout
   const isMessages = location.pathname === '/messages';
+  const currentUser = getCurrentUser();
+  const isAdmin = currentUser?.role === 'Admin';
 
   return (
     <div className="min-h-screen bg-surface flex flex-col paper-grain text-on-surface">
@@ -53,6 +56,7 @@ const Layout: React.FC = () => {
           <NavItem to="/messages" icon={<MessageSquare size={26} strokeWidth={1.5} />} label="Messages" />
           <NavItem to="/requests" icon={<Bell size={26} strokeWidth={1.5} />} label="Requests" />
           <NavItem to="/profile" icon={<User size={26} strokeWidth={1.5} />} label="Profile" />
+          {isAdmin && <NavItem to="/admin" icon={<Shield size={26} strokeWidth={1.5} />} label="Admin" className="bg-primary/5 border-primary/20" />}
           <NavItem to="/help" icon={<HelpCircle size={26} strokeWidth={1.5} />} label="Help" />
           <NavItem to="/about" icon={<Info size={26} strokeWidth={1.5} />} label="About" />
         </div>
