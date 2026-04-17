@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiGetAllUsers } from '../lib/api';
 import { Shield, Loader, Search, ExternalLink, Calendar, BookOpen, Clock, Activity, Send } from 'lucide-react';
-import { SectionHeader } from '../components/SectionHeader';
+import SectionHeader from '../components/SectionHeader';
 import { getCurrentUser } from '../lib/auth';
 import { getAvatarUrl } from '../lib/media';
 import { cn } from '../lib/utils';
