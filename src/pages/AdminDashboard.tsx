@@ -6,7 +6,6 @@ import { SectionHeader } from '../components/SectionHeader';
 import { getCurrentUser } from '../lib/auth';
 import { getAvatarUrl } from '../lib/media';
 import { cn } from '../lib/utils';
-import { format } from 'date-fns';
 
 type UserOverview = {
   id: string;
@@ -162,7 +161,7 @@ export default function AdminDashboard() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-on-surface-variant flex items-center gap-2">
                     <Calendar className="w-3 h-3" />
-                    {format(new Date(user.createdAt), 'MMM dd, yyyy')}
+                    {new Date(user.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-3 text-xs text-on-surface-variant">
