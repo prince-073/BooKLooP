@@ -9,7 +9,7 @@ const { generateOtp, sha256 } = require('../utils/otp');
 
 function safeUser(userDoc) {
   let finalRole = userDoc.role || 'Student';
-  if (userDoc.email === 'kumarkapil9216@gmail.com' && finalRole !== 'Admin') {
+  if (userDoc.email === 'kumarkapil29delu@gmail.com' && finalRole !== 'Admin') {
     finalRole = 'Admin';
     prisma.user.update({ where: { email: userDoc.email }, data: { role: 'Admin' } }).catch(() => {});
   }
