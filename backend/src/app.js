@@ -12,6 +12,7 @@ const requestRoutes = require('./routes/requestRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const userRoutes = require('./routes/userRoutes');
 const ratingRoutes = require('./routes/ratingRoutes');
+const adminRoutes = require('./routes/adminRoutes'); // ADDED THIS
 
 function createApp() {
   const app = express();
@@ -32,6 +33,7 @@ function createApp() {
   app.use('/api/chat', chatRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api/ratings', ratingRoutes);
+  app.use('/api/admin', adminRoutes); // ADDED THIS
 
   app.use(notFoundHandler);
   app.use(errorHandler);

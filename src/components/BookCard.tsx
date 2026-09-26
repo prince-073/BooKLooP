@@ -1,5 +1,5 @@
 import React from 'react';
-import { cn } from '../lib/utils';
+import { cn, optimizeCloudinaryUrl } from '../lib/utils';
 import { Link } from 'react-router-dom';
 import { MapPin, User, Trash2 } from 'lucide-react';
 
@@ -21,8 +21,9 @@ const BookCard: React.FC<BookCardProps> = ({ book, className, onDelete }) => {
     >
       <div className="aspect-[3/4] overflow-hidden relative border-b border-on-surface/5">
         <img
-          src={book.cover || book.coverUrl}
+          src={optimizeCloudinaryUrl(book.cover || book.coverUrl, 400)}
           alt={book.title}
+          loading="lazy"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           referrerPolicy="no-referrer"
         />

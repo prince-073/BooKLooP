@@ -166,6 +166,15 @@ const BookDetails: React.FC = () => {
               <span className="px-4 py-1.5 bg-primary/10 border border-primary/20 text-primary rounded-sm text-[10px] font-bold uppercase tracking-widest">
                 {book.subject || book.category}
               </span>
+              {currentUser?.role === 'Admin' && (
+                <span 
+                  onClick={() => { navigator.clipboard.writeText(book.id); toast.success('Book ID copied to clipboard!'); }}
+                  className="cursor-pointer px-4 py-1.5 bg-error/10 border border-error/20 text-error rounded-sm text-[10px] font-bold uppercase tracking-widest"
+                  title="Copy Book ID for direct issuing"
+                >
+                  Admin ID: {book.id.substring(0,8)}... (Copy)
+                </span>
+              )}
               <span className="text-xs text-on-surface-variant font-bold uppercase tracking-widest flex items-center gap-1.5 border-l-2 border-outline-variant/50 pl-3">
                 <Calendar size={14} />
                 Listed Date

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiGetAllUsers, apiDeleteUser } from '../lib/api';
+import { apiGetAllUsers, apiDeleteUser, apiAdminIssueBook } from '../lib/api';
 import { Shield, Loader, Search, ExternalLink, Calendar, BookOpen, Clock, Activity, Send, Trash2 } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { getCurrentUser } from '../lib/auth';
@@ -56,6 +56,21 @@ export default function AdminDashboard() {
 
     fetchUsers();
   }, [navigate]);
+
+  const handleIssueBook = async (userId: string, userName: string) => {
+    const bookId = window.prompt(`Enter the Book ID you want to issue to ${userName} (No OTP required):`);
+    if (!bookId) return;
+
+    try {
+      const loadingToast = toast.loading(`Issuing book to ${userName}...`);
+      await apiAdminIssueBook(bookId.trim(), userId);
+      toast.dismiss(loadingToast);
+      toast.success('Book issued successfully!');
+    } catch (err: any) {
+      toast.dismiss();
+      toast.error(err.message || 'Failed to issue book');
+    }
+  };
 
   const handleDeleteUser = async (userId: string, userName: string) => {
     const code = window.prompt(`Enter the admin pin to delete user ${userName}:`);
@@ -209,6 +224,13 @@ export default function AdminDashboard() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex gap-2 justify-end">
+                      <button 
+                        onClick={() => handleIssueBook(user.id, user.name)}
+                        className="inline-flex items-center justify-center p-2 rounded-xl text-primary hover:bg-primary/10 transition-colors"
+                        title="Direct Issue Book (No OTP)"
+                      >
+                        <BookOpen className="w-4 h-4" />
+                      </button>
                       <button 
                         onClick={() => navigate(`/user/${user.id}`)}
                         className="inline-flex items-center justify-center p-2 rounded-xl text-primary hover:bg-primary/10 transition-colors"

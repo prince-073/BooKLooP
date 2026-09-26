@@ -640,3 +640,9 @@ export async function apiDeleteUser(userId: string, code: string) {
     throw new Error(msg);
   }
 }
+
+export async function apiAdminIssueBook(bookId: string, borrowerId: string, daysRequested = 7) {
+  const token = getToken();
+  if (!token) throw new Error('Please login first');
+  return apiPost('/api/admin/issue-book', { bookId, borrowerId, daysRequested }, token);
+}

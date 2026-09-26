@@ -1,49 +1,47 @@
 const { env } = require('../config/env');
 const { ApiError } = require('./ApiError');
+const nodemailer = require('nodemailer');
 
 function isValidEmailFormat(email) {
-  // Simple RFC-ish check; for production consider a robust validator.
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
 }
 
 function emailMatchesAllowedDomains(email, allowedDomains) {
-  if (!allowedDomains || allowedDomains.length === 0) return true; // optional validation
+  if (!allowedDomains || allowedDomains.length === 0) return true;
   const value = String(email || '').trim().toLowerCase();
   return allowedDomains.some((domain) => value.endsWith(`@${domain}`));
 }
 
+// Create reusable transporter object using the default SMTP transport
+const transporter = nodemailer.createTransport({
+  host: env.SMTP_HOST || 'smtp.gmail.com',
+  port: env.SMTP_PORT || 587,
+  secure: env.SMTP_SECURE === 'true' || env.SMTP_PORT === 465, 
+  auth: {
+    user: env.SMTP_USER,
+    pass: env.SMTP_PASS,
+  },
+});
+
 async function sendOtpEmail(email, otp, subject = 'Your Campus Book Exchange OTP', customHtml = null) {
   if (env.OTP_DEV_RETURN === 'true' || env.OTP_DEV_RETURN === true) return;
 
-  if (!env.SMTP_PASS) {
-    throw new ApiError(500, 'Email API key is not configured. Set SMTP_PASS or enable OTP_DEV_RETURN.');
+  if (!env.SMTP_PASS || !env.SMTP_USER) {
+    throw new ApiError(500, 'Email SMTP configuration is missing. Set SMTP_USER and SMTP_PASS.');
   }
 
   const htmlContent = customHtml || `<html><body><p>Hello!</p><h2>Your OTP code is: <b style="color: #4F46E5;">${otp}</b></h2><p>It expires in ${env.OTP_EXPIRES_MINUTES} minutes.</p></body></html>`;
-
-  const payload = {
-    sender: { name: 'Campus Book Exchange', email: 'oji193084@gmail.com' },
-    to: [{ email: String(email) }],
-    subject: subject,
-    htmlContent: htmlContent
-  };
+  
+  const fromAddress = env.SMTP_FROM || `"Campus Book Exchange" <${env.SMTP_USER}>`;
 
   try {
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'content-type': 'application/json',
-        'api-key': env.SMTP_PASS
-      },
-      body: JSON.stringify(payload)
+    const info = await transporter.sendMail({
+      from: fromAddress,
+      to: email,
+      subject: subject,
+      html: htmlContent,
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Brevo API error:', errorText);
-      throw new Error(`Email provider rejected request: ${response.status}`);
-    }
+    console.log(`Email sent: ${info.messageId}`);
   } catch (err) {
     const msg = err?.message || String(err);
     console.error('Email Dispatch Error:', msg);
