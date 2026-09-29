@@ -77,7 +77,29 @@ const adminForceHandover = asyncHandler(async (req, res) => {
   res.json({ id: request.id, status: 'accepted', message: 'Admin Force Handover complete. OTP bypassed.' });
 });
 
+// Update any user's role (Make Admin / Revoke Admin)
+const adminUpdateUserRole = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { role } = req.body;
+
+  if (!role || !['Admin', 'Student'].includes(role)) {
+    throw new ApiError(400, 'Invalid role. Role must be "Admin" or "Student"');
+  }
+
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) throw new ApiError(404, 'User not found');
+
+  const updated = await prisma.user.update({
+    where: { id },
+    data: { role },
+    select: { id: true, name: true, email: true, role: true }
+  });
+
+  res.json({ success: true, message: `User role updated to ${role}`, user: updated });
+});
+
 module.exports = {
   adminDirectIssue,
-  adminForceHandover
+  adminForceHandover,
+  adminUpdateUserRole
 };

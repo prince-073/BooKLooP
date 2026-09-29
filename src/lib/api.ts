@@ -646,3 +646,28 @@ export async function apiAdminIssueBook(bookId: string, borrowerId: string, days
   if (!token) throw new Error('Please login first');
   return apiPost('/api/admin/issue-book', { bookId, borrowerId, daysRequested }, token);
 }
+
+export async function apiAdminUpdateUserRole(userId: string, role: string) {
+  const token = getToken();
+  if (!token) throw new Error('Please login first');
+  const res = await fetch(`${API_BASE_URL}/api/admin/users/${userId}/role`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ role })
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    let msg = `Request failed: ${res.status}`;
+    try {
+      const j = JSON.parse(text);
+      if (j?.error?.message) msg = j.error.message;
+    } catch {
+      if (text) msg += ` ${text}`;
+    }
+    throw new Error(msg);
+  }
+  return await res.json();
+}

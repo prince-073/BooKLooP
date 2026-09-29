@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiGetAllUsers, apiDeleteUser, apiAdminIssueBook } from '../lib/api';
-import { Shield, Loader, Search, ExternalLink, Calendar, BookOpen, Clock, Activity, Send, Trash2 } from 'lucide-react';
+import { apiGetAllUsers, apiDeleteUser, apiAdminIssueBook, apiAdminUpdateUserRole } from '../lib/api';
+import { Shield, Loader, Search, ExternalLink, Calendar, BookOpen, Clock, Activity, Send, Trash2, UserCheck } from 'lucide-react';
 import SectionHeader from '../components/SectionHeader';
 import { getCurrentUser } from '../lib/auth';
 import { getAvatarUrl } from '../lib/media';
 import { cn } from '../lib/utils';
 import toast from 'react-hot-toast';
-import { getAvatarUrl } from '../lib/media';
-import { cn } from '../lib/utils';
 
 type UserOverview = {
   id: string;
@@ -69,6 +67,26 @@ export default function AdminDashboard() {
     } catch (err: any) {
       toast.dismiss();
       toast.error(err.message || 'Failed to issue book');
+    }
+  };
+
+  const handleToggleRole = async (userId: string, userName: string, currentRole: string) => {
+    const targetRole = currentRole === 'Admin' ? 'Student' : 'Admin';
+    const actionText = currentRole === 'Admin' ? 'demote to Student' : 'promote to Admin';
+
+    if (!window.confirm(`Are you sure you want to ${actionText} user ${userName}?`)) {
+      return;
+    }
+
+    try {
+      const loadingToast = toast.loading(`Updating ${userName}'s role...`);
+      await apiAdminUpdateUserRole(userId, targetRole);
+      toast.dismiss(loadingToast);
+      toast.success(`${userName} is now an ${targetRole}!`);
+      setUsers(users.map(u => u.id === userId ? { ...u, role: targetRole } : u));
+    } catch (err: any) {
+      toast.dismiss();
+      toast.error(err.message || 'Failed to update role');
     }
   };
 
@@ -224,6 +242,18 @@ export default function AdminDashboard() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex gap-2 justify-end">
+                      <button 
+                        onClick={() => handleToggleRole(user.id, user.name, user.role)}
+                        className={cn(
+                          "inline-flex items-center justify-center p-2 rounded-xl transition-colors",
+                          user.role === 'Admin' 
+                            ? "text-amber-600 hover:bg-amber-500/10" 
+                            : "text-blue-600 hover:bg-blue-500/10"
+                        )}
+                        title={user.role === 'Admin' ? "Demote to Student" : "Promote to Admin"}
+                      >
+                        <UserCheck className="w-4 h-4" />
+                      </button>
                       <button 
                         onClick={() => handleIssueBook(user.id, user.name)}
                         className="inline-flex items-center justify-center p-2 rounded-xl text-primary hover:bg-primary/10 transition-colors"
