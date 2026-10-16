@@ -121,7 +121,7 @@ const Library: React.FC = () => {
                 {ownedBooks.length > 0 ? (
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                     {ownedBooks.map((book) => (
-                      <BookCard key={book.id} book={book} />
+                      <BookCard key={book.id} book={{ ...book, cover: book.image || book.cover || '' }} />
                     ))}
                   </div>
                 ) : (

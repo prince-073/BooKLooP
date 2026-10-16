@@ -36,10 +36,10 @@ const getUserById = asyncHandler(async (req, res) => {
     where: { id },
     include: {
       booksListed: {
-        select: { id: true, title: true, image: true, available: true, subject: true, condition: true }
+        select: { id: true, title: true, author: true, image: true, available: true, subject: true, condition: true, ownerId: true }
       },
       booksBorrowed: {
-        select: { id: true, title: true, image: true, available: true }
+        select: { id: true, title: true, author: true, image: true, available: true, ownerId: true, currentBorrowerId: true }
       },
     }
   });
@@ -47,6 +47,22 @@ const getUserById = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(404, 'User not found');
   }
+
+  // booksOwned: user's listed books with cover field mapped correctly
+  const booksOwned = (user.booksListed || []).map(b => ({
+    ...b,
+    cover: b.image || '',
+    status: b.available ? 'available' : 'borrowed',
+  }));
+
+  // booksBorrowed: only books currently assigned to this user
+  const booksBorrowed = (user.booksBorrowed || [])
+    .filter(b => b.currentBorrowerId === id)
+    .map(b => ({
+      ...b,
+      cover: b.image || '',
+      status: 'borrowed',
+    }));
 
   res.json({
     id: user.id,
@@ -60,8 +76,8 @@ const getUserById = asyncHandler(async (req, res) => {
     phoneVisible: user.phoneVisible,
     bio: user.bio,
     createdAt: user.createdAt,
-    booksOwned: user.booksListed || [],
-    booksBorrowed: user.booksBorrowed || [],
+    booksOwned,
+    booksBorrowed,
   });
 });
 

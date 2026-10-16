@@ -119,11 +119,25 @@ const getBooks = asyncHandler(async (req, res) => {
 
   const books = await prisma.book.findMany({
     where,
-    orderBy: { createdAt: 'desc' },
-    include: { owner: true },
+    include: {
+      owner: true,
+      requests: { select: { id: true, status: true } },
+    },
   });
 
-  res.json(books.map((b) => toFrontendBook(b, b.owner, req)));
+  // Sort: most swapped/requested first, then shuffle within same count for variety
+  const scored = books.map(b => ({
+    ...b,
+    _score: b.requests.filter(r => r.status === 'completed').length * 3
+           + b.requests.length
+  }));
+
+  scored.sort((a, b) => {
+    if (b._score !== a._score) return b._score - a._score;
+    return Math.random() - 0.5; // shuffle within same score
+  });
+
+  res.json(scored.map((b) => toFrontendBook(b, b.owner, req)));
 });
 
 const getBookById = asyncHandler(async (req, res) => {
