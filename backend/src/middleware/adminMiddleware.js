@@ -12,7 +12,7 @@ const adminMiddleware = asyncHandler(async (req, res, next) => {
     select: { role: true }
   });
 
-  if (!user || user.role !== 'Admin') {
+  if (!user || String(user.role).toLowerCase() !== 'admin') {
     throw new ApiError(403, 'Forbidden: Admins only');
   }
 

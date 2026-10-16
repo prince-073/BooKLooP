@@ -279,5 +279,12 @@ const updateAvatar = asyncHandler(async (req, res) => {
   res.json(safeUser(user));
 });
 
-module.exports = { register, login, requestOtp, verifyOtp, logout, updateMe, updateAvatar };
+const getMe = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new ApiError(404, 'User not found');
+  res.json(safeUser(user));
+});
+
+module.exports = { register, login, requestOtp, verifyOtp, logout, getMe, updateMe, updateAvatar };
 

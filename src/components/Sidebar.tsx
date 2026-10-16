@@ -101,7 +101,7 @@ export function Sidebar() {
           </NavLink>
         ))}
 
-        {currentUser?.role === 'Admin' && (
+        {String(currentUser?.role || '').toLowerCase() === 'admin' && (
           <NavLink
             to="/admin"
             onClick={closeMobile}

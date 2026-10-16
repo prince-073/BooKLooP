@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Home, Search, Library, Bell, User, PlusCircle, Heart, MessageSquare, HelpCircle, Info, Shield } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { OnboardingTour } from './OnboardingTour';
 import { getCurrentUser } from '../lib/auth';
+import { apiGetMe } from '../lib/api';
 
 const Layout: React.FC = () => {
   const location = useLocation();
   // Messages page gets a full-height, no-padding layout
   const isMessages = location.pathname === '/messages';
   const currentUser = getCurrentUser();
-  const isAdmin = currentUser?.role === 'Admin';
+  const isAdmin = String(currentUser?.role || '').toLowerCase() === 'admin';
+
+  useEffect(() => {
+    apiGetMe().catch(() => {});
+  }, []);
 
   return (
     <div className="min-h-screen bg-surface flex flex-col paper-grain text-on-surface">

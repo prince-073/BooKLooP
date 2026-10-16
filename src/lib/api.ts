@@ -671,3 +671,19 @@ export async function apiAdminUpdateUserRole(userId: string, role: string) {
   }
   return await res.json();
 }
+
+export async function apiGetMe() {
+  const token = getToken();
+  if (!token) return null;
+  const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) {
+    if (res.status === 401) handleUnauthorized();
+    return null;
+  }
+  const user = await res.json();
+  const { setCurrentUser } = await import('./auth');
+  setCurrentUser(user);
+  return user;
+}

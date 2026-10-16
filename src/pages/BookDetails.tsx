@@ -166,7 +166,7 @@ const BookDetails: React.FC = () => {
               <span className="px-4 py-1.5 bg-primary/10 border border-primary/20 text-primary rounded-sm text-[10px] font-bold uppercase tracking-widest">
                 {book.subject || book.category}
               </span>
-              {currentUser?.role === 'Admin' && (
+              {String(currentUser?.role || '').toLowerCase() === 'admin' && (
                 <span 
                   onClick={() => { navigator.clipboard.writeText(book.id); toast.success('Book ID copied to clipboard!'); }}
                   className="cursor-pointer px-4 py-1.5 bg-error/10 border border-error/20 text-error rounded-sm text-[10px] font-bold uppercase tracking-widest"
