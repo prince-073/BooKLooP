@@ -96,23 +96,23 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Stats Section - Static Numbers */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           icon={<BookOpen className="text-primary" size={28} strokeWidth={1.5} />}
-          value={`${stats.books}+`}
+          value="100+"
           label="Stories Shared"
           border="border-primary/20"
         />
         <StatCard
           icon={<Users className="text-secondary" size={28} strokeWidth={1.5} />}
-          value={`${stats.users}+`}
+          value="1000+"
           label="Active Readers"
           border="border-secondary/20"
         />
         <StatCard
           icon={<MessageSquare className="text-tertiary" size={28} strokeWidth={1.5} />}
-          value={`${stats.exchanges}+`}
+          value="500+"
           label="Books Swapped"
           border="border-tertiary/20"
         />
@@ -143,65 +143,9 @@ const Home: React.FC = () => {
         )}
       </section>
 
-      {/* Recent Activity */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-2">
-          <SectionHeader
-            title="Activity Log"
-            subtitle="Latest updates from our readers."
-          />
-          {loading ? (
-             <div className="h-32 text-on-surface-variant italic">Retrieving records...</div>
-          ) : (
-            <div className="space-y-4">
-              {activities.map((activity, index) => (
-                <motion.div
-                  key={activity.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="flex items-center gap-5 p-5 bg-surface-container-low rounded-sm border border-outline-variant/50 hover:border-outline transition-colors"
-                >
-                  <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border border-outline-variant">
-                    <img
-                      src={getAvatarUrl({ name: activity.userName, avatarUrl: activity.userAvatar })}
-                      alt={activity.userName}
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-on-surface font-body leading-relaxed">
-                      <span className="font-bold">{activity.userName}</span>
-                      {' '}
-                      <span className="text-on-surface-variant/80 italic">
-                        {activity.type === 'borrow' ? 'requested to borrow' :
-                         activity.type === 'return' ? 'safely returned' :
-                         activity.type === 'add' ? 'cataloged a new volume:' : 'curated'}
-                      </span>
-                      {' '}
-                      <span className="font-bold font-headline tracking-wide">{activity.bookTitle}</span>
-                    </p>
-                    <p className="text-xs text-on-surface-variant mt-1.5 uppercase tracking-widest">{new Date(activity.timestamp).toLocaleDateString()} {new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                  </div>
-                  <div className="hidden sm:block">
-                    <span className={cn(
-                      "px-3 py-1 rounded-sm text-[10px] font-bold uppercase tracking-widest border",
-                      activity.type === 'borrow' ? "bg-primary-container text-on-primary-container border-primary/20" :
-                      activity.type === 'return' ? "bg-secondary-container text-on-secondary-container border-secondary/20" :
-                      "bg-surface-container text-on-surface border-outline-variant"
-                    )}>
-                      {activity.type}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Quick Profile / Welcome */}
-        <div className="bg-surface-container-high rounded-sm p-8 border-2 border-outline-variant relative">
+      {/* Quick Profile / Welcome */}
+      <section>
+        <div className="bg-surface-container-high rounded-sm p-8 border-2 border-outline-variant relative max-w-sm">
           <div className="absolute top-0 right-0 p-4 opacity-10"><Feather size={60} className="text-primary"/></div>
           <div className="flex items-center gap-5 mb-8 relative z-10">
             <div className="w-16 h-16 rounded-full overflow-hidden border border-outline shadow-sm">
