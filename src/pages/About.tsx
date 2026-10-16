@@ -50,11 +50,27 @@ const STATS = [
 const TEAM = [
   {
     name: 'Kapil Delu',
-    role: 'Co-Founder',
+    role: 'Founder',
     email: 'kumarkapil9216@gmail.com',
     phone: '8059707500',
     initial: 'K',
     color: 'from-primary to-primary/60',
+  },
+  {
+    name: 'Prince',
+    role: 'Co-Founder',
+    email: 'princee0391@gmail.com',
+    phone: '9813517107',
+    initial: 'P',
+    color: 'from-secondary to-secondary/60',
+  },
+  {
+    name: 'Vikramaditya',
+    role: 'Co-Founder',
+    email: 'vikramaditya.i.528@gmail.com',
+    phone: '9350682997',
+    initial: 'V',
+    color: 'from-tertiary to-tertiary/60',
   },
 ];
 
@@ -216,7 +232,7 @@ export default function About() {
             <div className="w-8 h-0.5 bg-tertiary" />
             <h2 className="font-headline font-bold text-3xl text-on-surface italic">The Team</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {TEAM.map((member) => (
               <div
                 key={member.name}
